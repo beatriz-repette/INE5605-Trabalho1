@@ -1,5 +1,6 @@
 from datetime import date
 
+
 class Pessoa:
     def __init__(cpf: str, nome: str, data_nascimento: date, endereco: str):
         self.__cpf = cpf
