@@ -4,7 +4,7 @@ from datetime import date
 
 
 class Doacao: #RegistroDoacao
-    def __init__(self, data_doacao: date, animal: Animal, doador: Doador, motivo: str)
+    def __init__(self, data_doacao: date, animal: Animal, doador: Doador, motivo: str):
         self.__data_doacao = data_doacao
         self.__animal = animal
         self.__doador = doador
