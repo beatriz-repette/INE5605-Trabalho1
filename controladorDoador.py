@@ -52,7 +52,7 @@ def finalizar(self): #Mudar o nome para 'retornar'?
     self.__controladorPrincipal.abre_tela()
 
 def abre_tela(self): #anteriormente funcao se chamava "iniciar"
-    lista_opcoes = {}
+    lista_opcoes = {1:incluir_doador, 2:alterar_doador, 3:doadores, 4:excluir_doador, 0:finalizar}
 
     while True: #no exemplo ta como 'continua'
         lista_opcoes[self.__telaDoador.tela_opcoes()]()
