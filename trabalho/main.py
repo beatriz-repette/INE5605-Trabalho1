@@ -1,4 +1,4 @@
-from controladores.controladorPrincipal import ControladorPrincipal
+from controle.controladorPrincipal import ControladorPrincipal
 
 
 if __name__ == "__main__":
