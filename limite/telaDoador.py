@@ -1,4 +1,4 @@
-import verificador.verificaCPF
+import verificacao
 from verificador.verificaCPF import verificaCPF
 from exception.CPFexception import CPFExecption
 
