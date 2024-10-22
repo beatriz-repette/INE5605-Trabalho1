@@ -1,3 +1,6 @@
+import verificador.verificaCPF
+from verificador.verificaCPF import verificaCPF
+from exception.CPFexception import CPFExecption
 
 
 class TelaDoador():
@@ -19,8 +22,17 @@ class TelaDoador():
 
     def pega_dados_doador(self):
         print("-------- Dados Doador ----------")
-        #Adicionar verificacao de tipo para cada um desses dados
-        cpf = input("CPF: ")
+
+        #Verificacao CPF
+        cpf = input("CPF: ").replace(".", "").replace("-", "").replace(" ", "")
+        while True:
+            try:
+                verificaCPF(cpf)
+                break
+            except CPFExecption or ValueError:
+                print("O CPF digitado está incorreto, por favor o digite novamente.")
+                cpf = input("CPF: ")
+
         nome = input("Nome: ")
         data_nascimento = input("Data de nascimento:") #Verificacao para variavel do tipo Date
         endereco = input("Endereco: ")
