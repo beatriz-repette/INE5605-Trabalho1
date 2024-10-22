@@ -1,5 +1,5 @@
-from animal import Animal
-from adotante import Adotante
+from entidade.animal import Animal
+from entidade.adotante import Adotante
 from datetime import date
 
 
