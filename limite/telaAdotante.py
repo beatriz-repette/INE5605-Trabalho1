@@ -4,7 +4,7 @@ from exception.CPFexception import CPFExecption
 
 class TelaAdotante():
     def tela_opcoes(self): # Anteriormente funcao chamava-se "mostrar_opcoes"
-        print("-------- Doador ----------")
+        print("-------- Adotante ----------")
         print("Escolha a opcao")
         print("1 - Incluir Adotante")
         print("2 - Alterar Adotante")
@@ -20,14 +20,14 @@ class TelaAdotante():
         return int(opcao)
 
     def pega_dados_adotante(self):
-        print("-------- Dados Doador ----------")
+        print("-------- Dados Adotante ----------")
         #Verificacao CPF
-        cpf = input("CPF: ").replace(".", "").replace("-", "").replace(" ", "")
+        cpf = input("CPF: ").replace(".", "").replace("-", "").strip()
         while True:
             try:
                 verificaCPF(cpf)
                 break
-            except CPFExecption or ValueError:
+            except (CPFExecption, ValueError):
                 print("O CPF digitado está incorreto, por favor o digite novamente.")
                 cpf = input("CPF: ")
 
