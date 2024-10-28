@@ -1,5 +1,6 @@
 from limite.telaDoador import TelaDoador
 from entidade.doador import Doador
+from controle.controladorPrincipal import ControladorPrincipal
 
 
 class ControladorDoador:
