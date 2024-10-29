@@ -6,7 +6,7 @@ from exception.CPFexception import CPFExecption
 
 class TelaAdocao(TelaAbstrata):
     def tela_opcoes(self): #Anteriormente funcao chamava-se "mostrar_opcoes"
-        print("-------- Doacao ----------")
+        print("-------- Adocao ----------")
         print("Escolha a opcao")
         print("0 - Retornar")
         print("1 - Registrar Adocao")
@@ -16,10 +16,12 @@ class TelaAdocao(TelaAbstrata):
         return opcao
 
     def pega_dados_adocao(self):
-        print("-------- Dados Adocao ----------")
+        print("-------- Dados Adocao (Digite 0  para retornar) ----------")
         #Adicionar verificacao de tipo para cada um desses dados
         cpf = input("CPF: ").replace(".", "").replace("-", "").strip()
         while True:
+            if cpf == '0':
+                return 0
             try:
                 verificaCPF(cpf)
                 break
@@ -38,6 +40,8 @@ class TelaAdocao(TelaAbstrata):
 
         data = input("Data (formato dia/mes/ano): ")
         while True:
+            if data == '0':
+                return 0
             try:
                 data = datetime.strptime(data, '%d/%m/%Y')
                 break
@@ -47,6 +51,8 @@ class TelaAdocao(TelaAbstrata):
 
         assinou_termo = input("Assinou o termo de responsabilidade? (sim/nao): ")
         while True:
+            if assinou_termo == '0':
+                return 0
             if assinou_termo in ['sim', 'Sim']:
                 assinou_termo = True
                 break
