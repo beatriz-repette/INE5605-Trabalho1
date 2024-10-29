@@ -18,11 +18,13 @@ class TelaDoador(TelaAbstrata):
         return opcao
 
     def pega_dados_doador(self):
-        print("-------- Dados Doador ----------")
+        print("-------- Dados Doador (Digite 0 para retornar) ----------")
 
         #Verificacao CPF
         cpf = input("CPF: ").replace(".", "").replace("-", "").replace(" ", "")
         while True:
+            if cpf == '0':
+                return 0
             try:
                 verificaCPF(cpf)
                 break
@@ -31,8 +33,13 @@ class TelaDoador(TelaAbstrata):
                 cpf = input("CPF: ")
 
         nome = input("Nome: ")
+        if nome == '0':
+            return 0
+
         data = input("Data de nascimento (formato dia/mes/ano): ")
         while True:
+            if data == '0':
+                return 0
             try:
                 data = datetime.strptime(data, '%d/%m/%Y')
                 break
@@ -41,7 +48,8 @@ class TelaDoador(TelaAbstrata):
                 data = input("Data de nascimento (formato dia/mes/ano): ")
 
         endereco = input("Endereco: ")
-
+        if nome == '0':
+            return 0
 
         return {"nome": nome, "endereco": endereco, "data_nascimento": data, "cpf": cpf}
     

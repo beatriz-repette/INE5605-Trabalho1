@@ -17,11 +17,17 @@ class ControladorDoador:
 
     def incluir_doador(self):
         dados_doador = self.__telaDoador.pega_dados_doador()
-        for doa in self.__doadores:
-            if doa.cpf == dados_doador["cpf"]:
-                return
-        doador = Doador(dados_doador["cpf"], dados_doador["nome"], dados_doador["data_nascimento"], dados_doador["endereco"])
-        self.__doadores.append(doador)
+        try:
+            if dados_doador == 0:
+                raise Exception
+
+            for doa in self.__doadores:
+                if doa.cpf == dados_doador["cpf"]:
+                    return
+            doador = Doador(dados_doador["cpf"], dados_doador["nome"], dados_doador["data_nascimento"], dados_doador["endereco"])
+            self.__doadores.append(doador)
+        except:
+            print('Erro ao cadastrar doador.')
 
     def alterar_doador(self):
         cpf_doador = self.__telaDoador.seleciona_doador() #Seleciona retorna o cpf para fazer buscas em listas
@@ -51,8 +57,11 @@ class ControladorDoador:
         self.__controladorPrincipal.abre_tela()
 
     def listar_doadores(self):
-        for doador in self.__doadores:
-            self.__telaDoador.mostra_doador({"nome": doador.nome, "endereco": doador.endereco, "cpf": doador.cpf, "data_nascimento": doador.data_nascimento})
+        if self.__doadores == []:
+            print('Nao existem doadores no sistema.')
+        else:
+            for doador in self.__doadores:
+                self.__telaDoador.mostra_doador({"nome": doador.nome, "endereco": doador.endereco, "cpf": doador.cpf, "data_nascimento": doador.data_nascimento})
 
     def abre_tela(self): #anteriormente funcao se chamava "iniciar"
         lista_opcoes = {1 : self.incluir_doador, 2 : self.alterar_doador, 3 : self.listar_doadores, 4 : self.excluir_doador, 0 : self.finalizar}

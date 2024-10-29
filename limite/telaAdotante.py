@@ -22,6 +22,8 @@ class TelaAdotante(TelaAbstrata):
         #Verificacao CPF
         cpf = input("CPF: ").replace(".", "").replace("-", "").strip()
         while True:
+            if cpf == '0':
+                return 0
             try:
                 verificaCPF(cpf)
                 break
@@ -30,9 +32,13 @@ class TelaAdotante(TelaAbstrata):
                 cpf = input("CPF: ")
 
         nome = input("Nome: ")
+        if nome == '0':
+            return 0
 
         data = input("Data de nascimento (formato dia/mes/ano): ")
         while True:
+            if data == '0':
+                return 0
             try:
                 data = datetime.strptime(data, '%d/%m/%Y')
                 break
@@ -41,10 +47,14 @@ class TelaAdotante(TelaAbstrata):
                 data = input("Data de nascimento (formato dia/mes/ano): ")
 
         endereco = input("Endereco: ")
+        if endereco == '0':
+            return 0
 
         print('Tipos de habitacao: Casa (1), Apartamento Pequeno (2), Medio (3) ou Grande (4)')
         tipo_habitacao = input("Tipo de habitação: ") #Relacionar isso à classe "Tipo Habitacao"
         while True:
+            if tipo_habitacao == '0':
+                return 0
             try:
                 tipo_habitacao = int(tipo_habitacao)
                 if tipo_habitacao in [1, 2, 3, 4]:
@@ -57,6 +67,8 @@ class TelaAdotante(TelaAbstrata):
 
         possui_animal = input("Possui animal? (sim/nao): ") #Converter para bool
         while True:
+            if possui_animal == '0':
+                return 0
             if possui_animal in ['sim', 'Sim']:
                 possui_animal = True
                 break
@@ -81,4 +93,4 @@ class TelaAdotante(TelaAbstrata):
         print("DATA NASCIMENTO:", dados_adotante["data_nascimento"].strftime('%d/%m/%Y'))
         print("ENDERECO:", dados_adotante["endereco"])
         print("TIPO DE HABITACAO:", dados_adotante["tipo_habitacao"])
-        print("POSSUI ANIMAL?:", "SIM" if dados_adotante["possui_animal"] == True else "NAO")
+        print("POSSUI ANIMAL?:", "SIM" if dados_adotante["possui_animal"] else "NAO")

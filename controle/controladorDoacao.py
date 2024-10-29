@@ -17,7 +17,8 @@ class ControladorDoacao():
     def incluir_doacao(self):
         try:
             dados = self.__tela.pega_dados_doacao()
-
+            if dados == 0:
+                raise Exception
             doador_no_sistema = False
             for doador in self.__controladorPrincipal.controladorDoador.doadores:
                 if doador.cpf == dados['cpf']:
@@ -36,15 +37,18 @@ class ControladorDoacao():
             print('Erro ao realizar a doacao.')
 
     def listar_doacoes(self):
-        for d in self.__doacoes:
-            animal = self.__controladorPrincipal.animal_por_chip(d.animal)
-            self.__tela.mostrar_doacao({
-                'data': d.data_doacao,
-                'animal': animal.nome,
-                'chip': animal.num_chip,
-                'cpf': d.doador,
-                'motivo': d.motivo
-                })
+        if self.__doacoes == []:
+            print('Nao existem doacoes no sistema.')
+        else:
+            for d in self.__doacoes:
+                animal = self.__controladorPrincipal.animal_por_chip(d.animal)
+                self.__tela.mostrar_doacao({
+                    'data': d.data_doacao,
+                    'animal': animal.nome,
+                    'chip': animal.num_chip,
+                    'cpf': d.doador,
+                    'motivo': d.motivo
+                    })
 
     def finalizar(self):
         self.__controladorPrincipal.abre_tela()

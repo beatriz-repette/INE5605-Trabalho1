@@ -15,6 +15,9 @@ class ControladorPrincipal:
         from controle.controladorAdocao import ControladorAdocao
         self.__controladorAdocao = ControladorAdocao(self)
 
+        from controle.controladorAnimal import ControladorAnimal
+        self.__controladorAnimal = ControladorAnimal(self)
+
         from controle.controladorCachorro import ControladorCachorro
         self.__controladorCachorro = ControladorCachorro(self)
 
@@ -39,6 +42,10 @@ class ControladorPrincipal:
     @property
     def controladorAdocao(self):
         return self.__controladorAdocao
+    
+    @property
+    def controladorAnimal(self):
+        return self.__controladorAnimal
 
     @property
     def controladorCachorro(self):
@@ -62,6 +69,15 @@ class ControladorPrincipal:
     def cadastrar_adocao(self):
         self.__controladorAdocao.abrir_tela()
 
+    def visualizar_animal(self):
+        self.__controladorAnimal.abrir_tela()
+
+    def visualizar_cachorro(self):
+        self.__controladorCachorro.abrir_tela()
+
+    def visualizar_gato(self):
+        self.__controladorGato.abrir_tela()
+
     def iniciar_controlador(self):
         self.abre_tela()
 
@@ -84,7 +100,8 @@ class ControladorPrincipal:
                         1: self.cadastrar_doador,
                         2: self.cadastrar_adotante,
                         3: self.cadastrar_doacao,
-                        4: self.cadastrar_adocao}
+                        4: self.cadastrar_adocao,
+                        5: self.visualizar_animal}
 
         while True:
             opcao_escolhida = self.__tela_principal.tela_opcoes()

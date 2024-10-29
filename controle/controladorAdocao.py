@@ -14,6 +14,8 @@ class ControladorAdocao():
     def incluir_adocao(self):
         try:
             dados = self.__tela.pega_dados_adocao()
+            if dados == 0:
+                raise Exception
 
             adotante_de_maior = False
             adotante_no_sistema = False
@@ -49,15 +51,24 @@ class ControladorAdocao():
             print('Erro ao realizar a adocao.')
 
     def listar_adocoes(self):
+        if self.__adocoes == []:
+            print('Nao existem adocoes no sistema.')
+        else:
+            for a in self.__adocoes:
+                animal = self.__controladorPrincipal.animal_por_chip(a.animal)
+                self.__tela.mostrar_adocao({
+                    'data': a.data_adocao,
+                    'animal': animal.nome,
+                    'chip': animal.num_chip,
+                    'cpf': a.adotante,
+                    'assinou_termo': a.termo_responsabilidade
+                    })
+                
+    def animal_foi_adotado(self, id):
         for a in self.__adocoes:
-            animal = self.__controladorPrincipal.animal_por_chip(a.animal)
-            self.__tela.mostrar_adocao({
-                'data': a.data_adocao,
-                'animal': animal.nome,
-                'chip': animal.num_chip,
-                'cpf': a.adotante,
-                'assinou_termo': a.termo_responsabilidade
-                })
+            if a.animal == id:
+                return True
+        return False
 
     def finalizar(self):
         self.__controladorPrincipal.abre_tela()
