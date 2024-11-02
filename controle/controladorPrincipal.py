@@ -60,10 +60,10 @@ class ControladorPrincipal:
         #Chama o controlador de adotante
         self.__controladorAdotante.abre_tela()
 
-    def cadastrar_doacao(self):
+    def registrar_doacao(self):
         self.__controladorDoacao.abrir_tela()
 
-    def cadastrar_adocao(self):
+    def registrar_adocao(self):
         self.__controladorAdocao.abrir_tela()
 
     def visualizar_animal(self):
@@ -96,8 +96,8 @@ class ControladorPrincipal:
         lista_opcoes = {0: self.encerrar_sistema,
                         1: self.cadastrar_doador,
                         2: self.cadastrar_adotante,
-                        3: self.cadastrar_doacao,
-                        4: self.cadastrar_adocao,
+                        3: self.registrar_doacao,
+                        4: self.registrar_adocao,
                         5: self.visualizar_animal}
 
         while True:
