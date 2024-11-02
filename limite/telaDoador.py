@@ -1,31 +1,30 @@
-import verificacao
-from verificador.verificaCPF import verificaCPF
+from verificacao import verificaCPF
+from limite.telaAbstrata import TelaAbstrata
 from exception.CPFexception import CPFExecption
+from datetime import date, datetime
 
 
-class TelaDoador():
+class TelaDoador(TelaAbstrata):
     def tela_opcoes(self): #Anteriormente funcao chamava-se "mostrar_opcoes"
         print("-------- Doador ----------")
         print("Escolha a opcao")
+        print("0 - Retornar")
         print("1 - Incluir Doador")
         print("2 - Alterar Doador")
         print("3 - Listar Doadores")
         print("4 - Excluir Doador")
-        print("0 - Retornar")
 
-        opcao = input("Escolha a opcao: ")
-        while opcao not in ["1","2","3","4","0"]:
-            print("Input invalido, por favor digite uma das opcoes validas")
-            opcao = input("Escolha a opcao: ")
-        
-        return int(opcao)
+        opcao = self.ler_int('Escolha uma opcao: ', [0, 1, 2, 3, 4])
+        return opcao
 
     def pega_dados_doador(self):
-        print("-------- Dados Doador ----------")
+        print("-------- Dados Doador (Digite 0 para retornar) ----------")
 
         #Verificacao CPF
         cpf = input("CPF: ").replace(".", "").replace("-", "").replace(" ", "")
         while True:
+            if cpf == '0':
+                return 0
             try:
                 verificaCPF(cpf)
                 break
@@ -34,11 +33,25 @@ class TelaDoador():
                 cpf = input("CPF: ")
 
         nome = input("Nome: ")
-        data_nascimento = input("Data de nascimento:") #Verificacao para variavel do tipo Date
+        if nome == '0':
+            return 0
+
+        data = input("Data de nascimento (formato dia/mes/ano): ")
+        while True:
+            if data == '0':
+                return 0
+            try:
+                data = datetime.strptime(data, '%d/%m/%Y')
+                break
+            except: 
+                print('Data invalida inserida.')
+                data = input("Data de nascimento (formato dia/mes/ano): ")
+
         endereco = input("Endereco: ")
+        if nome == '0':
+            return 0
 
-
-        return {"nome": nome, "endereco": endereco, "data_nascimento":data_nascimento, "cpf": cpf}
+        return {"nome": nome, "endereco": endereco, "data_nascimento": data, "cpf": cpf}
     
     def seleciona_doador(self):
         #Adicionar verificacao de tipo para o cpf
@@ -46,8 +59,8 @@ class TelaDoador():
         return cpf
 
     def mostra_doador(self, dados_doador):
-        print("NOME DO AMIGO: ", dados_doador["nome"])
-        print("CPF DO AMIGO: ", dados_doador["cpf"])
-        print("DATA NASCIMENTO: ", dados_doador["data_nascimento"])
-        print("ENDERECO: ", dados_doador["endereco"])
-        print("\n")
+        print('------------------')
+        print("NOME DO DOADOR:", dados_doador["nome"])
+        print("CPF DO DOADOR:", dados_doador["cpf"])
+        print("DATA NASCIMENTO:", dados_doador["data_nascimento"].strftime('%d/%m/%Y'))
+        print("ENDERECO:", dados_doador["endereco"])

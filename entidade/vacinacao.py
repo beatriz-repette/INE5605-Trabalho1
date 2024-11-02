@@ -1,10 +1,12 @@
 from datetime import date
+from entidade.vacina import Vacina
 
 
 class Vacinacao():
-    def __init__(self, data: date, vacina: str):
+    def __init__(self, data: date, vacina: Vacina, animal: int):
         self.__data = data
         self.__vacina = vacina
+        self.__animal_chip = animal
 
     @property
     def data(self):
@@ -21,3 +23,7 @@ class Vacinacao():
     @vacina.setter
     def vacina(self,vacina):
         self.__vacina = vacina
+
+    @property
+    def animal(self):
+        return self.__animal_chip

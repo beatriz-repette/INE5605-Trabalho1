@@ -1,9 +1,10 @@
 from entidade.pessoa import Pessoa
 from datetime import date
+from entidade.habitacao import Habitacao
 
 
 class Adotante(Pessoa):
-    def __init__(self, cpf: str, nome: str, data_nascimento: date, endereco: str, tipo_habitacao: str, possui_animal: bool):
+    def __init__(self, cpf: str, nome: str, data_nascimento: date, endereco: str, tipo_habitacao: Habitacao, possui_animal: bool):
         super().__init__(cpf, nome, data_nascimento, endereco)
         self.__tipo_habitacao = tipo_habitacao
         self.__possui_animal = possui_animal

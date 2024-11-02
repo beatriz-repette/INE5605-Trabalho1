@@ -1,10 +1,10 @@
 from entidade.animal import Animal
 from entidade.adotante import Adotante
-from datetime import date
+from datetime import date, datetime
 
 
 class Adocao:
-    def __init__(self, data_adocao,  animal: Animal, adotante: Adotante, termo_responsabilidade):
+    def __init__(self, data_adocao: datetime,  animal: int, adotante: str, termo_responsabilidade: bool):
         self.__data_adocao = data_adocao
         self.__adotante = adotante
         self.__animal = animal

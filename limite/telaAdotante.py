@@ -1,29 +1,29 @@
 from verificacao import verificaCPF
 from exception.CPFexception import CPFExecption
+from limite.telaAbstrata import TelaAbstrata
+from datetime import datetime, date
 
 
-class TelaAdotante():
+class TelaAdotante(TelaAbstrata):
     def tela_opcoes(self): # Anteriormente funcao chamava-se "mostrar_opcoes"
         print("-------- Adotante ----------")
-        print("Escolha a opcao")
+        print("Escolha a opcao:")
+        print("0 - Retornar")
         print("1 - Incluir Adotante")
         print("2 - Alterar Adotante")
         print("3 - Listar Adotantes")
         print("4 - Excluir Adotante")
-        print("0 - Retornar")
 
-        opcao = input("Escolha a opcao: ")
-        while opcao not in ["1" ,"2" ,"3" ,"4" ,"0"]:
-            print("Input invalido, por favor digite uma das opcoes validas")
-            opcao = input("Escolha a opcao: ")
-
-        return int(opcao)
+        opcao = self.ler_int('Escolha uma opcao: ', [0, 1, 2, 3, 4])
+        return opcao
 
     def pega_dados_adotante(self):
         print("-------- Dados Adotante ----------")
         #Verificacao CPF
         cpf = input("CPF: ").replace(".", "").replace("-", "").strip()
         while True:
+            if cpf == '0':
+                return 0
             try:
                 verificaCPF(cpf)
                 break
@@ -32,12 +32,54 @@ class TelaAdotante():
                 cpf = input("CPF: ")
 
         nome = input("Nome: ")
-        data_nascimento = input("Data de nascimento:") # Verificacao para variavel do tipo Date
-        endereco = input("Endereco: ")
-        tipo_habitacao = input("Tipo de habitação: ") #Relacionar isso à classe "Tipo Habitacao"
-        possui_animal = input("Possui animal? (sim/nao) ") #Converter para bool
+        if nome == '0':
+            return 0
 
-        return {"nome": nome, "endereco": endereco, "data_nascimento" :data_nascimento, "cpf": cpf, "tipo_habitacao" : tipo_habitacao, "possui_animal" : possui_animal}
+        data = input("Data de nascimento (formato dia/mes/ano): ")
+        while True:
+            if data == '0':
+                return 0
+            try:
+                data = datetime.strptime(data, '%d/%m/%Y')
+                break
+            except: 
+                print('Data invalida inserida.')
+                data = input("Data de nascimento (formato dia/mes/ano): ")
+
+        endereco = input("Endereco: ")
+        if endereco == '0':
+            return 0
+
+        print('Tipos de habitacao: Casa (1), Apartamento Pequeno (2), Medio (3) ou Grande (4)')
+        tipo_habitacao = input("Tipo de habitação: ") #Relacionar isso à classe "Tipo Habitacao"
+        while True:
+            if tipo_habitacao == '0':
+                return 0
+            try:
+                tipo_habitacao = int(tipo_habitacao)
+                if tipo_habitacao in [1, 2, 3, 4]:
+                    break
+                else:
+                    raise ValueError
+            except ValueError:
+                print('Valor invalido inserido.')
+                tipo_habitacao = input("Tipo de habitação: ")
+
+        possui_animal = input("Possui animal? (sim/nao): ") #Converter para bool
+        while True:
+            if possui_animal == '0':
+                return 0
+            if possui_animal in ['sim', 'Sim']:
+                possui_animal = True
+                break
+            elif possui_animal in ['nao', 'Nao']:
+                possui_animal = False
+                break
+            else:
+                print('Insira uma opcao valida')
+                possui_animal = input("Possui animal? (sim/nao): ")
+
+        return {"nome": nome, "endereco": endereco, "data_nascimento": data, "cpf": cpf, "tipo_habitacao": tipo_habitacao, "possui_animal": possui_animal}
 
     def seleciona_adotante(self):
         # Adicionar verificacao de tipo para o cpf
@@ -45,10 +87,10 @@ class TelaAdotante():
         return cpf
 
     def mostra_adotante(self, dados_adotante):
-        print("NOME DO AMIGO: ", dados_adotante["nome"])
-        print("CPF DO AMIGO: ", dados_adotante["cpf"])
-        print("DATA NASCIMENTO: ", dados_adotante["data_nascimento"])
-        print("ENDERECO: ", dados_adotante["endereco"])
-        print("TIPO DE HABITAÇÃO: ", dados_adotante["tipo_habitacao"])
-        print("POSSUI ANIMAL? ", "SIM" if dados_adotante["possui_animal"] == True else "NÃO")
-        print("\n")
+        print("------------------")
+        print("NOME DO ADOTANTE:", dados_adotante["nome"])
+        print("CPF DO ADOTANTE:", dados_adotante["cpf"])
+        print("DATA NASCIMENTO:", dados_adotante["data_nascimento"].strftime('%d/%m/%Y'))
+        print("ENDERECO:", dados_adotante["endereco"])
+        print("TIPO DE HABITACAO:", dados_adotante["tipo_habitacao"])
+        print("POSSUI ANIMAL?:", "SIM" if dados_adotante["possui_animal"] else "NAO")

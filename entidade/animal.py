@@ -5,11 +5,11 @@ from entidade.vacinacao import Vacinacao
 class Animal(ABC):
 
     @abstractmethod
-    def __init__(self, num_chip: int, nome: str, raca: str):
+    def __init__(self, num_chip: int, nome: str, raca: str, vacinas = []):
         self.__num_chip = num_chip
         self.__nome = nome
         self.__raca = raca
-        self.__vacinas = []
+        self.__vacinas = vacinas
 
     @property
     def num_chip(self):

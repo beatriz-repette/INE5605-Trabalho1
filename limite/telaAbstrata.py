@@ -1,17 +1,22 @@
 from abc import ABC, abstractmethod
-#Decidir se vamos usar classes abstratas ou nao
 
 
 class TelaAbstrata(ABC):
+    def ler_int(self, mensagem = '', int_validos = None):
+        while True:
+            valor_lido = input(mensagem)
+            try:
+                inteiro = int(valor_lido)
+                if int_validos and inteiro not in int_validos:
+                    raise ValueError
+                return inteiro
+            except ValueError:
+                print('Valor incorreto: Digite um valor numerico inteiro valido')
 
-    @abstractmethod
-    def tela_opcoes(self):
-        #Printar as opcoes da tela de cada classe
-        opcao = input("Escolha a opcao: ")
-        while opcao not in []: #Adicionar lista de opcoes validas para cada tela
-            print("Input invalido, por favor digite uma das opcoes validas")
-            opcao = input("Escolha a opcao: ")
-
-        return int(opcao)
     
-    #Inserir, tambem, funcoes de selecionar_itens e pegar_dados_itens para "itens" de cada classe
+    @abstractmethod
+    def tela_opcoes(self): #Anteriormente funcao chamava-se "mostrar_opcoes"
+        opcao = self.ler_int('Escolha uma opcao: ', [0])
+        return opcao
+
+#Inserir, tambem, funcoes de selecionar_itens e pegar_dados_itens para "itens" de cada classe
