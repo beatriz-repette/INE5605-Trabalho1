@@ -1,4 +1,9 @@
 from entidade.adocao import Adocao
+from entidade.habitacao import Habitacao
+from entidade.cachorro import Cachorro
+from entidade.gato import Gato
+from entidade.vacina import Vacina
+from entidade.vacinacao import Vacinacao
 from limite.telaAdocao import TelaAdocao
 from controle.controladorPrincipal import ControladorPrincipal
 from exception.CPFexception import CPFExecption
@@ -18,13 +23,13 @@ class ControladorAdocao():
                 raise Exception
 
             adotante_de_maior = False
-            adotante_no_sistema = False
-            for adotante in self.__controladorPrincipal.controladorAdotante.adotantes:
-                if adotante.cpf == dados['cpf']:
-                    adotante_no_sistema = True
-                    if adotante.data_nascimento < datetime(date.today().year-18, date.today().month, date.today().day):
+            adotante = None
+            for adot in self.__controladorPrincipal.controladorAdotante.adotantes:
+                if adot.cpf == dados['cpf']:
+                    adotante = adot
+                    if adot.data_nascimento < datetime(date.today().year-18, date.today().month, date.today().day):
                             adotante_de_maior = True
-            if not adotante_no_sistema:
+            if adotante is None:
                 print('Adotante nao se encontra no sistema.')
                 raise Exception
             if not adotante_de_maior:
@@ -39,14 +44,25 @@ class ControladorAdocao():
                 print('Adotante ja doou um animal.')
                 raise Exception
 
-            animal_no_sistema = False
-            if self.__controladorPrincipal.animal_por_chip(dados['animal']) != 'Animal não se encontra no sistema.':
-                animal_no_sistema = True
-            if not animal_no_sistema:
+            animal = self.__controladorPrincipal.animal_por_chip(dados['animal'])
+            if animal == 'Animal não se encontra no sistema.':
                 print('Animal nao se encontra no sistema.')
                 raise Exception
 
+            vacinas_animal = []
+            for vac in animal.vacinas:
+                if vac.vacina._name_ in ['RAIVA', 'HEPATITE', 'LEPTOSPIROSE']:
+                    vacinas_animal.append(vac.vacina._name_)
+            if sorted(vacinas_animal) != sorted(['RAIVA', 'HEPATITE', 'LEPTOSPIROSE']):
+                print('Vacinas invalidas.')
+                raise Exception
+            
+            if adotante.tipo_habitacao == Habitacao(2) and isinstance(animal, Cachorro) and animal.tamanho in ['g', 'G']:
+                print('Tamanho do animal incompativel com a sua residencia.')
+                raise Exception
+
             self.__adocoes.append(Adocao(dados['data'], dados['animal'], dados['cpf'], dados['assinou_termo']))
+            print('Adocao realizada! :)')
         except:
             print('Erro ao realizar a adocao.')
 

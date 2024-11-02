@@ -33,6 +33,8 @@ class TelaAdocao(TelaAbstrata):
         while True:
             try:
                 animal = int(animal)
+                if animal < 0:
+                    raise Exception
                 break
             except:
                 print('ID invalido inserido.')
@@ -51,15 +53,19 @@ class TelaAdocao(TelaAbstrata):
 
         assinou_termo = input("Assinou o termo de responsabilidade? (sim/nao): ")
         while True:
-            if assinou_termo == '0':
-                return 0
-            if assinou_termo in ['sim', 'Sim']:
-                assinou_termo = True
-                break
-            elif assinou_termo in ['nao', 'Nao']:
-                assinou_termo = False
-                break
-            else:
+            try:
+                assinou_termo = assinou_termo.lower()
+                if assinou_termo == '0':
+                    return 0
+                if assinou_termo in ['sim', 'Sim']:
+                    assinou_termo = True
+                    break
+                elif assinou_termo in ['nao', 'Nao']:
+                    assinou_termo = False
+                    break
+                else:
+                    raise Exception
+            except:
                 print('Insira uma opcao valida')
                 assinou_termo = input("Assinou o termo de responsabilidade? (sim/nao): ")
 
