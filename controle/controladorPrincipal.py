@@ -6,9 +6,6 @@ class ControladorPrincipal:
         from controle.controladorAdotante import  ControladorAdotante
         self.__controladorAdotante = ControladorAdotante(self)
 
-        from controle.controladorDoador import ControladorDoador
-        self.__controladorDoador = ControladorDoador(self)
-
         from controle.controladorDoacao import ControladorDoacao
         self.__controladorDoacao = ControladorDoacao(self)
 
