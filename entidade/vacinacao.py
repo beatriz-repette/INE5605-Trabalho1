@@ -25,5 +25,9 @@ class Vacinacao():
         self.__vacina = vacina
 
     @property
-    def animal(self):
+    def animal_chip(self):
         return self.__animal_chip
+
+    @animal_chip.setter
+    def animal_chip(self, chip):
+        self.__animal_chip = chip

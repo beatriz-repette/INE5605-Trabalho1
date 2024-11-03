@@ -1,4 +1,6 @@
 from entidade.doacao import Doacao
+from entidade.vacinacao import Vacinacao
+from entidade.vacina import Vacina
 from limite.telaDoacao import TelaDoacao
 from exception.erroRegistroException import ErroRegistroException
 from exception.retornarException import RetornarException
@@ -30,6 +32,10 @@ class ControladorDoacao():
                 raise ErroRegistroException
 
             animal = None
+            vacinas = []
+            for v in dados['animal']['vacinas']:
+                vacinas.append(Vacinacao(v['data'], Vacina(v['nome']), v['animal']))
+            dados['animal']['vacinas'] = vacinas
             if dados['animal']['tipo'] == 'Cachorro':
                 animal = self.__controladorPrincipal.controladorCachorro.incluir_cachorro(dados['animal'])
             elif dados['animal']['tipo'] == 'Gato':
