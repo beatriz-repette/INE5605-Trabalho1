@@ -10,7 +10,7 @@ class TelaGato(TelaAbstrata):
         opcao = self.ler_int('Escolha uma opcao: ', [0, 1])
         return opcao
 
-    def mostrar_cachorro(self, dados):
+    def mostrar_gato(self, dados):
         print('--------' + ' Gato: ' + dados['animal'] + ' ----------')
         print('Numero do chip: ' + str(dados['chip']))
         print('Raca: ' + dados['raca'])
