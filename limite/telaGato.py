@@ -1,6 +1,5 @@
 from limite.telaAbstrata import TelaAbstrata
 
-
 class TelaGato(TelaAbstrata):
     def tela_opcoes(self):
         print("-------- ONG de Animais ---------")
@@ -16,3 +15,6 @@ class TelaGato(TelaAbstrata):
         print('Numero do chip: ' + str(dados['chip']))
         print('Raca: ' + dados['raca'])
         print('Foi adotado:', 'Sim' if dados['adotado'] else 'Nao')
+
+    def mensagem_sem_gatos(self):
+        print("Nao existem cachorros cadastrados no sistema")
