@@ -1,7 +1,7 @@
 from verificacao import verificaCPF
 from exception.CPFexception import CPFExecption
 from limite.telaAbstrata import TelaAbstrata
-from datetime import datetime, date
+from datetime import datetime
 
 
 class TelaAdotante(TelaAbstrata):
@@ -50,7 +50,11 @@ class TelaAdotante(TelaAbstrata):
         if endereco == '0':
             return 0
 
-        print('Tipos de habitacao: Casa (1), Apartamento Pequeno (2), Medio (3) ou Grande (4)')
+        print("Selecione seu tipo de habitacao: ")
+        print("1- Casa")
+        print("2- Apartamento Pequeno")
+        print("3- Apartamento Medio")
+        print("4- Apartamento Grande")
         tipo_habitacao = input("Tipo de habitação: ") #Relacionar isso à classe "Tipo Habitacao"
         while True:
             if tipo_habitacao == '0':
@@ -65,26 +69,36 @@ class TelaAdotante(TelaAbstrata):
                 print('Valor invalido inserido.')
                 tipo_habitacao = input("Tipo de habitação: ")
 
-        possui_animal = input("Possui animal? (sim/nao): ") #Converter para bool
+        possui_animal = input("Possui animal? (Sim/Nao): ") #Converter para bool
         while True:
             if possui_animal == '0':
                 return 0
-            if possui_animal in ['sim', 'Sim']:
-                possui_animal = True
-                break
-            elif possui_animal in ['nao', 'Nao']:
-                possui_animal = False
-                break
-            else:
+            try:
+                possui_animal = possui_animal.lower()
+
+                if possui_animal == 'sim':
+                    possui_animal = True
+                    break
+                elif possui_animal == 'nao':
+                    possui_animal = False
+                    break
+            except:
                 print('Insira uma opcao valida')
                 possui_animal = input("Possui animal? (sim/nao): ")
 
         return {"nome": nome, "endereco": endereco, "data_nascimento": data, "cpf": cpf, "tipo_habitacao": tipo_habitacao, "possui_animal": possui_animal}
 
     def seleciona_adotante(self):
-        # Adicionar verificacao de tipo para o cpf
-        cpf = input("CPF do adotante que deseja selecionar: ")
-        return cpf
+        cpf = input("CPF do doador que deseja selecionar: ").replace(".", "").replace("-", "").replace(" ", "")
+        while True:
+            if cpf == '0':
+                return 0
+            try:
+                verificaCPF(cpf)
+                break
+            except CPFExecption or ValueError:
+                print("O CPF digitado está incorreto, por favor o digite novamente.")
+                cpf = input("CPF: ").replace(".", "").replace("-", "").replace(" ", "")
 
     def mostra_adotante(self, dados_adotante):
         print("------------------")
@@ -94,3 +108,12 @@ class TelaAdotante(TelaAbstrata):
         print("ENDERECO:", dados_adotante["endereco"])
         print("TIPO DE HABITACAO:", dados_adotante["tipo_habitacao"])
         print("POSSUI ANIMAL?:", "SIM" if dados_adotante["possui_animal"] else "NAO")
+
+    def mensagem_erro_cadastro(self):
+        print("Erro ao cadastrar adotante, CPF inserido ja cadastrado")
+
+    def mensagem_adotante_nao_existente(self):
+        print("Nao existe nenhum cadastro de doador com esse CPF")
+
+    def mensagem_non_existent(self):
+        print("Nao existem doadores no sistema")

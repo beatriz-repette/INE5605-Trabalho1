@@ -17,3 +17,6 @@ class TelaCachorro(TelaAbstrata):
         print('Tamanho: ' + dados['tamanho'])
         print('Raca: ' + dados['raca'])
         print('Foi adotado:', 'Sim' if dados['adotado'] else 'Nao')
+
+    def mensagem_sem_cachorros(self):
+        print("Nao existem cachorros cadastrados no sistema")

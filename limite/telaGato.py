@@ -16,3 +16,6 @@ class TelaGato(TelaAbstrata):
         print('Numero do chip: ' + str(dados['chip']))
         print('Raca: ' + dados['raca'])
         print('Foi adotado:', 'Sim' if dados['adotado'] else 'Nao')
+
+    def mensagem_sem_gatos(self):
+        print("Nao existem gatos cadastrados no sistema")

@@ -1,5 +1,5 @@
 from limite.telaAbstrata import TelaAbstrata
-from datetime import date, datetime
+from datetime import datetime
 from verificacao import verificaCPF
 from exception.CPFexception import CPFExecption
 
@@ -145,3 +145,8 @@ class TelaDoacao(TelaAbstrata):
         print('CPF do doador: ' + dados['cpf'])
         print('Motivo da doacao: ' + dados['motivo'])
         
+    def mensagem_sem_doador(self):
+        print("Doador nao encontrado no sistema")
+
+    def mensagem_sem_doacoes(self):
+        print("Nao existem doacoes cadastradas no sistema")

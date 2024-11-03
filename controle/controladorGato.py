@@ -1,5 +1,4 @@
 from entidade.gato import Gato
-from controle.controladorPrincipal import ControladorPrincipal
 from limite.telaGato import TelaGato
 
 class ControladorGato():
@@ -10,7 +9,7 @@ class ControladorGato():
 
     def listar_gatos(self):
         if self.__gatos == []:
-            print('Nao existem gatos no sistema.')
+            self.__telaGato.mensagem_sem_gatos()
         else:
             for a in self.__gatos:
                 self.__telaGato.mostrar_gato({

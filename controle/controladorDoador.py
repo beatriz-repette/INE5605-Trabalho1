@@ -1,6 +1,7 @@
 from limite.telaDoador import TelaDoador
 from entidade.doador import Doador
-from controle.controladorPrincipal import ControladorPrincipal
+from exception.retornarException import RetornarException
+from exception.erroCadastroException import ErroCadastroException
 
 
 class ControladorDoador:
@@ -19,15 +20,18 @@ class ControladorDoador:
         dados_doador = self.__telaDoador.pega_dados_doador()
         try:
             if dados_doador == 0:
-                raise Exception
+                self.__telaDoador.mensagem_operacao_cancelada()
+                raise RetornarException
 
             for doa in self.__doadores:
                 if doa.cpf == dados_doador["cpf"]:
-                    return
+                    self.__telaDoador.mensagem_erro_cadastro()
+                    raise ErroCadastroException
             doador = Doador(dados_doador["cpf"], dados_doador["nome"], dados_doador["data_nascimento"], dados_doador["endereco"])
             self.__doadores.append(doador)
+            self.__telaDoador.mensagem_operacao_concluida()
         except:
-            print('Erro ao cadastrar doador.')
+            pass
 
     def alterar_doador(self):
         cpf_doador = self.__telaDoador.seleciona_doador() #Seleciona retorna o cpf para fazer buscas em listas
@@ -35,11 +39,23 @@ class ControladorDoador:
 
         if doador is not None:
             novos_dados_doador = self.__telaDoador.pega_dados_doador()
-            doador.cpf = novos_dados_doador["cpf"]
-            doador.nome = novos_dados_doador["nome"]
-            doador.data_nascimento = novos_dados_doador["data_nascimento"]
-            doador.endereco = novos_dados_doador["endereco"]
-        #Talvez exibir uma mensagem caso nn exista esse amigo? Ou da pra, na tela, so aceitar cpf validos
+
+            try:
+                #Verifica se ja existe um cadastro com o novo cpf informado
+                for doa in self.__doadores:
+                    if doa.cpf == novos_dados_doador["cpf"]:
+                        self.__telaDoador.mensagem_erro_cadastro()
+                        raise ErroCadastroException
+
+                #Realiza o cadastro somente se o novo cpf inserido for unico no sistema
+                doador.cpf = novos_dados_doador["cpf"]
+                doador.nome = novos_dados_doador["nome"]
+                doador.data_nascimento = novos_dados_doador["data_nascimento"]
+                doador.endereco = novos_dados_doador["endereco"]
+                self.__telaDoador.mensagem_operacao_concluida()
+
+            except ErroCadastroException:
+                pass
 
     def excluir_doador(self):
         cpf_doador = self.__telaDoador.seleciona_doador() #Seleciona retorna o cpf para fazer buscas em listas
@@ -47,18 +63,20 @@ class ControladorDoador:
 
         if doador is not None:
             self.__doadores.remove(doador)
-        #Opcional: adicionar mensagem caso doador a ser deletado ja nao exista
+            self.__telaDoador.mensagem_operacao_concluida()
+        else:
+            self.__telaDoador.mensagem_doador_nao_existente()
 
     @property
     def doadores(self):
         return self.__doadores
 
-    def finalizar(self): #Mudar o nome para 'retornar'?
+    def finalizar(self):
         self.__controladorPrincipal.abre_tela()
 
     def listar_doadores(self):
         if self.__doadores == []:
-            print('Nao existem doadores no sistema.')
+            self.__telaDoador.mensagem_non_existent()
         else:
             for doador in self.__doadores:
                 self.__telaDoador.mostra_doador({"nome": doador.nome, "endereco": doador.endereco, "cpf": doador.cpf, "data_nascimento": doador.data_nascimento})
@@ -69,4 +87,3 @@ class ControladorDoador:
         while True: #no exemplo ta como 'continua'
             funcao_escolhida = lista_opcoes[self.__telaDoador.tela_opcoes()]
             funcao_escolhida()
-  

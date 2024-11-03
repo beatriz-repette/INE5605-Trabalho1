@@ -1,7 +1,7 @@
 from entidade.doacao import Doacao
 from limite.telaDoacao import TelaDoacao
-from controle.controladorPrincipal import ControladorPrincipal
-from exception.CPFexception import CPFExecption
+from exception.erroRegistroException import ErroRegistroException
+from exception.retornarException import RetornarException
 
 
 class ControladorDoacao():
@@ -18,14 +18,16 @@ class ControladorDoacao():
         try:
             dados = self.__tela.pega_dados_doacao()
             if dados == 0:
-                raise Exception
+                self.__tela.mensagem_operacao_cancelada()
+                raise RetornarException
             doador_no_sistema = False
             for doador in self.__controladorPrincipal.controladorDoador.doadores:
                 if doador.cpf == dados['cpf']:
                     doador_no_sistema = True
             if not doador_no_sistema:
-                print('Doador nao se encontra no sistema.')
-                raise Exception
+                self.__tela.mensagem_sem_doador()
+                self.__tela.mensagem_operacao_cancelada()
+                raise ErroRegistroException
 
             animal = None
             if dados['animal']['tipo'] == 'Cachorro':
@@ -33,12 +35,12 @@ class ControladorDoacao():
             elif dados['animal']['tipo'] == 'Gato':
                 animal = self.__controladorPrincipal.controladorGato.incluir_gato(dados['animal'])
             self.__doacoes.append(Doacao(dados['data'], dados['animal']['chip'], dados['cpf'], dados['motivo']))
-        except:
-            print('Erro ao realizar a doacao.')
+        except ErroRegistroException or ErroRegistroException:
+            pass
 
     def listar_doacoes(self):
         if self.__doacoes == []:
-            print('Nao existem doacoes no sistema.')
+            self.__tela.mensagem_sem_doacoes()
         else:
             for d in self.__doacoes:
                 animal = self.__controladorPrincipal.animal_por_chip(d.animal)

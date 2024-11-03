@@ -13,6 +13,12 @@ class TelaAbstrata(ABC):
             except ValueError:
                 print('Valor incorreto: Digite um valor numerico inteiro valido')
 
+    def mensagem_operacao_cancelada(self):
+        print("Operacao cancelada")
+        print()
+
+    def mensagem_operacao_concluida(self):
+        print("Operacao realizada com sucesso!")
     
     @abstractmethod
     def tela_opcoes(self): #Anteriormente funcao chamava-se "mostrar_opcoes"

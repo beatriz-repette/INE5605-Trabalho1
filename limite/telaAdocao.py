@@ -77,3 +77,24 @@ class TelaAdocao(TelaAbstrata):
         print('Numero do chip: ' + str(dados['chip']))
         print('CPF do adotante: ' + dados['cpf'])
         print('Assinou o termo de responsabilidade: ' + "SIM" if dados['assinou_termo'] else "NAO")
+
+    def mensagem_sem_adotante(self):
+        print("Sem adotantes no sistema")
+
+    def mensagem_sem_adocoes(self):
+        print("Nao existem adocoes no sistema")
+
+    def mensagem_menor_idade(self):
+        print("Para realizar uma adocao, o adotante precisa ter mais de 18 anos.")
+
+    def mensagem_ja_doou(self):
+        print("Para realizar uma adocao, o adotante nao pode ja ter doado um animal.")
+
+    def mensagem_no_animal(self):
+        print("Esse animal nao foi encontrado no sistema.")
+
+    def mensagem_vacs_invalidas(self):
+        print("Esse animal nao possui todas as vacinas necessarias para poder ser adotado.")
+
+    def mensagem_residencia_incompativel(self):
+        print("Tamanho do animal incompativel com a sua residencia.")

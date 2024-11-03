@@ -25,7 +25,7 @@ class ControladorCachorro():
     
     def listar_cachorros(self):
         if self.__cachorros == []:
-            print('Nao existem cachorros no sistema.')
+            self.__telaCachorro.mensagem_sem_cachorros()
         else:
             for a in self.__cachorros:
                 self.__telaCachorro.mostrar_cachorro({
