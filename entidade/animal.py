@@ -40,5 +40,18 @@ class Animal(ABC):
         return self.__vacinas
 
     def add_vacina(self, vacina: Vacinacao):
-        self.__vacinas.append(vacina)
+        if vacina not in self.__vacinas:
+            self.__vacinas.append(vacina)
+
+    def alterar_vacina(self, vacinacao, tipo, dado):
+        if vacinacao in self.__vacinas:
+            if tipo == 1:
+                vacinacao.data = dado
+            elif tipo == 2:
+                vacinacao.vacina = dado
+            elif tipo == 3:
+                vacinacao.animal_chip = dado
+
+    def excluir_vacina(self, vacina):
+        self.__vacinas.remove(vacina)
 

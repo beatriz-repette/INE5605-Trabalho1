@@ -20,6 +20,7 @@ class ControladorAdocao():
         try:
             dados = self.__telaAdocao.pega_dados_adocao()
             if dados == 0:
+                self.__telaAdocao.mensagem_operacao_cancelada()
                 raise RetornarException
 
             adotante_de_maior = False
@@ -51,8 +52,7 @@ class ControladorAdocao():
 
             vacinas_animal = []
             for vac in animal.vacinas:
-                if vac.vacina._name_ in ['RAIVA', 'HEPATITE', 'LEPTOSPIROSE']:
-                    vacinas_animal.append(vac.vacina._name_)
+                vacinas_animal.append(vac.vacina._name_)
             if sorted(vacinas_animal) != sorted(['RAIVA', 'HEPATITE', 'LEPTOSPIROSE']):
                 self.__telaAdocao.mensagem_vacs_invalidas()
                 raise ErroRegistroException
@@ -61,24 +61,146 @@ class ControladorAdocao():
                 self.__telaAdocao.mensagem_residencia_incompativel()
                 raise ErroRegistroException
 
+            if self.animal_foi_adotado(animal.num_chip):
+                self.__telaAdocao.mensagem_ja_adotado()
+                raise ErroRegistroException
+
             self.__adocoes.append(Adocao(dados['data'], dados['animal'], dados['cpf'], dados['assinou_termo']))
             self.__telaAdocao.mensagem_operacao_concluida()
-        except ErroRegistroException or RetornarException:
-            self.__telaAdocao.mensagem_operacao_cancelada()
+        except:
+            pass
+
+    def alterar_adocao(self):
+        try:
+            adocao = self.__telaAdocao.seleciona_adocao(len(self.__adocoes))
+            if adocao == '*':
+                self.__telaAdocao.mensagem_operacao_cancelada()
+                raise RetornarException
+            
+            adocao = self.__adocoes[adocao]
+
+            dados = self.__telaAdocao.pega_dados_alterados_adocao()
+            if dados == 0:
+                self.__telaAdocao.mensagem_operacao_cancelada()
+                raise RetornarException
+
+            adotante = None
+            animal = None
+
+            if dados['animal'] != '*':
+                animal = self.__controladorPrincipal.animal_por_chip(dados['animal'])
+                if animal == 'Animal não se encontra no sistema.':
+                    self.__telaAdocao.mensagem_no_animal()
+                    raise ErroRegistroException
+                
+                if self.animal_foi_adotado(animal.num_chip) and animal.num_chip != adocao.animal:
+                    self.__telaAdocao.mensagem_ja_adotado()
+                    raise ErroRegistroException
+                
+                adocao.animal = dados['animal']
+            else:
+                animal = self.__controladorPrincipal.animal_por_chip(adocao.animal)
+            
+            if dados['cpf'] != '*':
+                adotante = self.__controladorPrincipal.controladorAdotante.adotante_por_cpf(dados['cpf'])
+                if adotante.data_nascimento > datetime(date.today().year-18, date.today().month, date.today().day):
+                    self.__telaAdocao.mensagem_menor_idade()
+                    raise ErroRegistroException
+                if adotante is None:
+                    self.__telaAdocao.mensagem_sem_adotante()
+                    raise ErroRegistroException
+                    
+
+                adotante_ja_doou = False
+                for doacao in self.__controladorPrincipal.controladorDoacao.doacoes:
+                    if doacao.doador == dados['cpf']:
+                        adotante_ja_doou = True
+                if adotante_ja_doou:
+                    self.__telaAdocao.mensagem_ja_doou()
+                    raise ErroRegistroException
+                
+                adocao.adotante = dados['cpf']
+            else: 
+                adotante = self.__controladorPrincipal.controladorAdotante.adotante_por_cpf(adocao.adotante)
+
+            if dados['data'] != '*':
+                adocao.data_adocao = dados['data']
+
+            if dados['assinou_termo'] != '*':
+                adocao.assinou_termo = dados['assinou_termo']
+
+            if adotante.tipo_habitacao._name_ == 'APARTAMENTO_PEQUENO' and isinstance(animal, Cachorro) and animal.tamanho in ['g', 'G']:
+                self.__telaAdocao.mensagem_residencia_incompativel()
+                raise ErroRegistroException
+
+            self.__telaAdocao.mensagem_operacao_concluida()
+        except:
+            pass
 
     def listar_adocoes(self):
         if self.__adocoes == []:
             self.__telaAdocao.mensagem_sem_adocoes()
         else:
+            n = 0
             for a in self.__adocoes:
                 animal = self.__controladorPrincipal.animal_por_chip(a.animal)
-                self.__tela.mostrar_adocao({
-                    'data': a.data_adocao,
-                    'animal': animal.nome,
-                    'chip': animal.num_chip,
-                    'cpf': a.adotante,
-                    'assinou_termo': a.termo_responsabilidade
-                    })
+                if animal != 'Animal não se encontra no sistema.':
+                    self.__telaAdocao.mostrar_adocao({
+                        'data': a.data_adocao,
+                        'animal': animal.nome,
+                        'chip': a.animal,
+                        'cpf': a.adotante,
+                        'assinou_termo': a.termo_responsabilidade
+                        }, n)
+                else:
+                    self.__telaAdocao.mostrar_adocao({
+                        'data': a.data_adocao,
+                        'animal': '[Animal nao encontrado]',
+                        'chip': a.animal,
+                        'cpf': a.adotante,
+                        'assinou_termo': a.termo_responsabilidade
+                        }, n)
+                n += 1
+
+    def relatorio_adocao(self):
+        if self.__adocoes == []:
+            self.__telaAdocao.mensagem_sem_adocoes()
+        else:
+            periodo = self.__telaAdocao.seleciona_periodo()
+            n = 0
+            for a in self.__adocoes:
+                animal = self.__controladorPrincipal.animal_por_chip(a.animal)
+                if (animal != 'Animal não se encontra no sistema.'
+                    and a.data_adocao >= periodo['inicio']
+                    and a.data_adocao <= periodo['fim']):
+                    self.__telaAdocao.mostrar_adocao({
+                        'data': a.data_adocao,
+                        'animal': animal.nome,
+                        'chip': a.animal,
+                        'cpf': a.adotante,
+                        'assinou_termo': a.termo_responsabilidade
+                        }, n)
+                    
+                elif (animal != 'Animal não se encontra no sistema.'
+                    and a.data_adocao >= periodo['inicio']
+                    and a.data_adocao <= periodo['fim']):
+
+                    self.__telaAdocao.mostrar_adocao({
+                        'data': a.data_adocao,
+                        'animal': '[Animal nao encontrado]',
+                        'chip': a.animal,
+                        'cpf': a.adotante,
+                        'assinou_termo': a.termo_responsabilidade
+                        }, n)
+                n += 1
+    
+    def excluir_adocao(self):
+        adocao = self.__telaAdocao.seleciona_adocao(len(self.__adocoes))
+        if adocao != '*':
+            self.__adocoes.remove(self.__adocoes[adocao])
+            self.__telaAdocao.mensagem_operacao_concluida()
+        else:
+            self.__telaAdocao.mensagem_operacao_cancelada()
                 
     def animal_foi_adotado(self, id):
         for a in self.__adocoes:
@@ -93,10 +215,13 @@ class ControladorAdocao():
         switch = {
             0: self.finalizar,
             1: self.incluir_adocao,
-            2: self.listar_adocoes,
+            2: self.alterar_adocao,
+            3: self.listar_adocoes,
+            4: self.excluir_adocao,
+            5: self.relatorio_adocao
             }
         while True:
-            opcao = self.__tela.tela_opcoes()
+            opcao = self.__telaAdocao.tela_opcoes()
             funcao_escolhida = switch[opcao]
             funcao_escolhida()
 

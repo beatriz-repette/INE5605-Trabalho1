@@ -13,14 +13,26 @@ class Doacao: #RegistroDoacao
     @property
     def data_doacao(self):
         return self.__data_doacao
+    
+    @data_doacao.setter
+    def data_doacao(self, data):
+        self.__data_doacao = data
 
     @property
     def animal(self):
         return self.__animal
     
+    @animal.setter
+    def animal(self, animal):
+        self.__animal = animal
+    
     @property
     def doador(self):
         return self.__doador
+    
+    @doador.setter
+    def doador(self, doador):
+        self.__doador = doador
     
     @property
     def motivo(self):

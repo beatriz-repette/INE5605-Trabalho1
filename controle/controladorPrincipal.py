@@ -21,6 +21,9 @@ class ControladorPrincipal:
         from controle.controladorGato import ControladorGato
         self.__controladorGato = ControladorGato(self)
 
+        from controle.controladorVacinacao import ControladorVacinacao
+        self.__controladorVacinacao = ControladorVacinacao(self)
+
         from limite.telaPrincipal import TelaPrincipal
         self.__tela_principal = TelaPrincipal()
 
@@ -51,6 +54,10 @@ class ControladorPrincipal:
     @property
     def controladorGato(self):
         return self.__controladorGato
+    
+    @property
+    def controladorVacinacao(self):
+        return self.__controladorVacinacao
 
     def cadastrar_doador(self):
         #Chama o controlador de doador
@@ -75,6 +82,9 @@ class ControladorPrincipal:
     def visualizar_gato(self):
         self.__controladorGato.abrir_tela()
 
+    def visualizar_historico(self):
+        self.__controladorVacinacao.abre_tela()
+
     def iniciar_controlador(self):
         self.abre_tela()
 
@@ -98,7 +108,8 @@ class ControladorPrincipal:
                         2: self.cadastrar_adotante,
                         3: self.registrar_doacao,
                         4: self.registrar_adocao,
-                        5: self.visualizar_animal}
+                        5: self.visualizar_animal,
+                        6: self.visualizar_historico}
 
         while True:
             opcao_escolhida = self.__tela_principal.tela_opcoes()

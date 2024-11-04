@@ -15,7 +15,6 @@ class TelaAbstrata(ABC):
 
     def mensagem_operacao_cancelada(self):
         print("Operacao cancelada")
-        print()
 
     def mensagem_operacao_concluida(self):
         print("Operacao realizada com sucesso!")

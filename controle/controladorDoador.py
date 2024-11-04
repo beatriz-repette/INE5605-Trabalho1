@@ -34,28 +34,43 @@ class ControladorDoador:
             pass
 
     def alterar_doador(self):
-        cpf_doador = self.__telaDoador.seleciona_doador() #Seleciona retorna o cpf para fazer buscas em listas
+        cpf_doador = self.__telaDoador.seleciona_doador()  # Seleciona retorna o cpf para fazer buscas em listas
+        if cpf_doador == '0':
+            self.__telaDoador.mensagem_operacao_cancelada()
+            raise RetornarException
+        
         doador = self.doador_por_cpf(cpf_doador)
 
         if doador is not None:
-            novos_dados_doador = self.__telaDoador.pega_dados_doador()
-
             try:
-                #Verifica se ja existe um cadastro com o novo cpf informado
-                for doa in self.__doadores:
-                    if doa.cpf == novos_dados_doador["cpf"]:
+                novos_dados_doador = self.__telaDoador.pega_dados_alterados_doador()
+
+                if novos_dados_doador == 0:
+                    self.__telaDoador.mensagem_operacao_cancelada()
+                    raise RetornarException
+
+                if novos_dados_doador["cpf"] != '*':
+                    # Verifica se ja existe um cadastro com o novo cpf informado
+                    if self.doador_por_cpf(novos_dados_doador['cpf']) is not None:
                         self.__telaDoador.mensagem_erro_cadastro()
                         raise ErroCadastroException
+                    doador.cpf = novos_dados_doador["cpf"]
 
-                #Realiza o cadastro somente se o novo cpf inserido for unico no sistema
-                doador.cpf = novos_dados_doador["cpf"]
-                doador.nome = novos_dados_doador["nome"]
-                doador.data_nascimento = novos_dados_doador["data_nascimento"]
-                doador.endereco = novos_dados_doador["endereco"]
+                if novos_dados_doador["nome"] != '*':
+                    doador.nome = novos_dados_doador["nome"]
+
+                if novos_dados_doador["data_nascimento"] != '*':
+                    doador.data_nascimento = novos_dados_doador["data_nascimento"]
+
+                if novos_dados_doador["endereco"] != '*':
+                    doador.endereco = novos_dados_doador["endereco"]
+
                 self.__telaDoador.mensagem_operacao_concluida()
 
-            except ErroCadastroException:
+            except ErroCadastroException or RetornarException:
                 pass
+        else:
+            self.__telaDoador.mensagem_doador_nao_existente()
 
     def excluir_doador(self):
         cpf_doador = self.__telaDoador.seleciona_doador() #Seleciona retorna o cpf para fazer buscas em listas

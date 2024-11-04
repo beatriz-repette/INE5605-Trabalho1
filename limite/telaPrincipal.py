@@ -11,6 +11,7 @@ class TelaPrincipal(TelaAbstrata):
         print("3 - Doacao")
         print('4 - Adocao')
         print('5 - Animais')
+        print('6 - Historico de Vacinacao')
         
-        opcao = self.ler_int('Escolha uma opcao: ', [0, 1, 2, 3, 4, 5])
+        opcao = self.ler_int('Escolha uma opcao: ', [0, 1, 2, 3, 4, 5, 6])
         return opcao

@@ -3,7 +3,7 @@ from entidade.animal import Animal
 
 class Cachorro(Animal):
     def __init__(self, num_chip: int, nome: str, raca: str, tamanho: str, vacinas = []):
-        super().__init__(num_chip, nome, raca, vacinas = [])
+        super().__init__(num_chip, nome, raca, vacinas)
         self.__tamanho = tamanho
 
     @property

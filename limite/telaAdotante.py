@@ -87,9 +87,88 @@ class TelaAdotante(TelaAbstrata):
                 possui_animal = input("Possui animal? (sim/nao): ")
 
         return {"nome": nome, "endereco": endereco, "data_nascimento": data, "cpf": cpf, "tipo_habitacao": tipo_habitacao, "possui_animal": possui_animal}
+    
+    def pega_dados_alterados_adotante(self):
+        print("-------- Alteracao de Adotante (Insira 0 para cancelar ou * para avancar) ----------")
+        #Verificacao CPF
+        cpf = input("CPF: ").replace(".", "").replace("-", "").strip()
+        while True:
+            if cpf == '0':
+                return 0
+            elif cpf == '*':
+                break
+            try:
+                verificaCPF(cpf)
+                break
+            except (CPFExecption, ValueError):
+                print("O CPF digitado está incorreto, por favor o digite novamente.")
+                cpf = input("CPF: ")
+
+        nome = input("Nome: ")
+        if nome == '0':
+            return 0
+
+        data = input("Data de nascimento (formato dia/mes/ano): ")
+        while True:
+            if data == '0':
+                return 0
+            elif data == '*':
+                break
+            try:
+                data = datetime.strptime(data, '%d/%m/%Y')
+                break
+            except: 
+                print('Data invalida inserida.')
+                data = input("Data de nascimento (formato dia/mes/ano): ")
+
+        endereco = input("Endereco: ")
+        if endereco == '0':
+            return 0
+
+        print("Selecione seu tipo de habitacao: ")
+        print("1- Casa")
+        print("2- Apartamento Pequeno")
+        print("3- Apartamento Medio")
+        print("4- Apartamento Grande")
+        tipo_habitacao = input("Tipo de habitação: ") #Relacionar isso à classe "Tipo Habitacao"
+        while True:
+            if tipo_habitacao == '0':
+                return 0
+            elif tipo_habitacao == '*':
+                break
+            try:
+                tipo_habitacao = int(tipo_habitacao)
+                if tipo_habitacao in [1, 2, 3, 4]:
+                    break
+                else:
+                    raise ValueError
+            except ValueError:
+                print('Valor invalido inserido.')
+                tipo_habitacao = input("Tipo de habitação: ")
+
+        possui_animal = input("Possui animal? (Sim/Nao): ") #Converter para bool
+        while True:
+            if possui_animal == '0':
+                return 0
+            elif possui_animal == '*':
+                break
+            try:
+                possui_animal = possui_animal.lower()
+
+                if possui_animal == 'sim':
+                    possui_animal = True
+                    break
+                elif possui_animal == 'nao':
+                    possui_animal = False
+                    break
+            except:
+                print('Insira uma opcao valida')
+                possui_animal = input("Possui animal? (sim/nao): ")
+
+        return {"nome": nome, "endereco": endereco, "data_nascimento": data, "cpf": cpf, "tipo_habitacao": tipo_habitacao, "possui_animal": possui_animal}
 
     def seleciona_adotante(self):
-        cpf = input("CPF do doador que deseja selecionar: ").replace(".", "").replace("-", "").replace(" ", "")
+        cpf = input("CPF do adotante que deseja selecionar: ").replace(".", "").replace("-", "").replace(" ", "")
         while True:
             if cpf == '0':
                 return 0
@@ -99,6 +178,7 @@ class TelaAdotante(TelaAbstrata):
             except CPFExecption or ValueError:
                 print("O CPF digitado está incorreto, por favor o digite novamente.")
                 cpf = input("CPF: ").replace(".", "").replace("-", "").replace(" ", "")
+        return cpf
 
     def mostra_adotante(self, dados_adotante):
         print("------------------")
@@ -110,10 +190,10 @@ class TelaAdotante(TelaAbstrata):
         print("POSSUI ANIMAL?:", "SIM" if dados_adotante["possui_animal"] else "NAO")
 
     def mensagem_erro_cadastro(self):
-        print("Erro ao cadastrar adotante, CPF inserido ja cadastrado")
+        print("Erro ao cadastrar adotante, CPF inserido ja cadastrado.")
 
     def mensagem_adotante_nao_existente(self):
-        print("Nao existe nenhum cadastro de doador com esse CPF")
+        print("Nao existe nenhum cadastro de adotante com esse CPF.")
 
     def mensagem_non_existent(self):
-        print("Nao existem doadores no sistema")
+        print("Nao existem adotantes no sistema.")

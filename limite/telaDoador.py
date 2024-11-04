@@ -53,6 +53,46 @@ class TelaDoador(TelaAbstrata):
 
         return {"nome": nome, "endereco": endereco, "data_nascimento": data, "cpf": cpf}
     
+    def pega_dados_alterados_doador(self):
+        print("-------- Dados Doador (Insira 0 para cancelar ou * para avancar) ----------")
+
+        #Verificacao CPF
+        cpf = input("CPF: ").replace(".", "").replace("-", "").replace(" ", "")
+        while True:
+            if cpf == '0':
+                return 0
+            elif cpf == '*':
+                break
+            try:
+                verificaCPF(cpf)
+                break
+            except CPFExecption or ValueError:
+                print("O CPF digitado está incorreto, por favor o digite novamente.")
+                cpf = input("CPF: ").replace(".", "").replace("-", "").replace(" ", "")
+
+        nome = input("Nome: ")
+        if nome == '0':
+            return 0
+
+        data = input("Data de nascimento (formato DD/MM/YYYY): ")
+        while True:
+            if data == '0':
+                return 0
+            elif data == '*':
+                break
+            try:
+                data = datetime.strptime(data, '%d/%m/%Y')
+                break
+            except: 
+                print('Data invalida inserida.')
+                data = input("Data de nascimento (formato dia/mes/ano): ")
+
+        endereco = input("Endereco: ")
+        if endereco == '0':
+            return 0
+
+        return {"nome": nome, "endereco": endereco, "data_nascimento": data, "cpf": cpf}
+    
     def seleciona_doador(self):
         cpf = input("CPF do doador que deseja selecionar: ").replace(".", "").replace("-", "").replace(" ", "")
         while True:
@@ -64,6 +104,7 @@ class TelaDoador(TelaAbstrata):
             except CPFExecption or ValueError:
                 print("O CPF digitado está incorreto, por favor o digite novamente.")
                 cpf = input("CPF: ").replace(".", "").replace("-", "").replace(" ", "")
+        return cpf
 
 
     def mostra_doador(self, dados_doador):
