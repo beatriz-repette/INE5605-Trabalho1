@@ -32,7 +32,7 @@ class ControladorAdotante:
 
             self.__telaAdotante.mensagem_operacao_concluida()
         except RetornarException or ErroCadastroException or KeyError:
-            self.__telaAdotante.mensagem_operacao_cancelada()
+            pass
 
     def alterar_adotante(self):
         cpf_adotante = self.__telaAdotante.seleciona_adotante()  # Seleciona retorna o cpf para fazer buscas em listas

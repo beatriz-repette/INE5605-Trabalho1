@@ -1,5 +1,7 @@
 from limite.telaAbstrata import TelaAbstrata
 from datetime import datetime
+from verificacao import verificaNome
+from exception.erroCadastroException import ErroCadastroException
 
 class TelaGato(TelaAbstrata):
     def tela_opcoes(self):
@@ -18,9 +20,19 @@ class TelaGato(TelaAbstrata):
         print("-------- Alteracao de gato (insira 0 para retornar ou * para avançar) ---------")
         gato = {}
 
-        nome = input('Nome do gato: ')
-        if nome == '0':
-            return 0
+        # Verificacao de nome
+        nome = input("Nome do gato: ")
+        while True:
+            if nome == '0':
+                return 0
+            elif nome == '*':
+                break
+            try:
+                verificaNome(nome)
+                break
+            except ErroCadastroException:
+                print("Nome invalido, por favor digite novamente.")
+                nome = input("Nome: ")
         gato.update({'nome': nome})
 
         while True:
@@ -34,7 +46,7 @@ class TelaGato(TelaAbstrata):
                 break
 
             except ValueError:
-                print('Por favor, insira um chip invalido.')
+                print('Por favor, insira um chip valido.')
                 chip = input('Chip do gato: ')
         gato.update({'chip': chip})
 

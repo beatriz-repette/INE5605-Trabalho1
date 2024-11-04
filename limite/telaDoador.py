@@ -1,6 +1,7 @@
-from verificacao import verificaCPF
+from verificacao import verificaCPF, verificaNome, verificaEndereco
 from limite.telaAbstrata import TelaAbstrata
 from exception.CPFexception import CPFExecption
+from exception.erroCadastroException import ErroCadastroException
 from datetime import datetime
 
 
@@ -32,9 +33,17 @@ class TelaDoador(TelaAbstrata):
                 print("O CPF digitado está incorreto, por favor o digite novamente.")
                 cpf = input("CPF: ").replace(".", "").replace("-", "").replace(" ", "")
 
+        # Verificacao de nome
         nome = input("Nome: ")
-        if nome == '0':
-            return 0
+        while True:
+            if nome == '0':
+                return 0
+            try:
+                verificaNome(nome)
+                break
+            except ErroCadastroException:
+                print("Nome invalido, por favor digite novamente.")
+                nome = input("Nome: ")
 
         data = input("Data de nascimento (formato DD/MM/YYYY): ")
         while True:
@@ -47,9 +56,18 @@ class TelaDoador(TelaAbstrata):
                 print('Data invalida inserida.')
                 data = input("Data de nascimento (formato dia/mes/ano): ")
 
+        # Verificacao de endereco
         endereco = input("Endereco: ")
-        if nome == '0':
-            return 0
+        while True:
+            if endereco == '0':
+                return 0
+            try:
+                verificaEndereco(endereco)
+                break
+            except ErroCadastroException:
+                print("Endereco invalido, por favor digite novamente.")
+                print("Lembre de escrever ao menos sua cidade, rua e numero!")
+                endereco = input("Endereco: ")
 
         return {"nome": nome, "endereco": endereco, "data_nascimento": data, "cpf": cpf}
     
@@ -70,9 +88,19 @@ class TelaDoador(TelaAbstrata):
                 print("O CPF digitado está incorreto, por favor o digite novamente.")
                 cpf = input("CPF: ").replace(".", "").replace("-", "").replace(" ", "")
 
+        # Verificacao de nome
         nome = input("Nome: ")
-        if nome == '0':
-            return 0
+        while True:
+            if nome == '0':
+                return 0
+            elif nome == '*':
+                break
+            try:
+                verificaNome(nome)
+                break
+            except ErroCadastroException:
+                print("Nome invalido, por favor digite novamente.")
+                nome = input("Nome: ")
 
         data = input("Data de nascimento (formato DD/MM/YYYY): ")
         while True:
@@ -87,9 +115,20 @@ class TelaDoador(TelaAbstrata):
                 print('Data invalida inserida.')
                 data = input("Data de nascimento (formato dia/mes/ano): ")
 
+        # Verificacao de endereco
         endereco = input("Endereco: ")
-        if endereco == '0':
-            return 0
+        while True:
+            if endereco == '0':
+                return 0
+            elif endereco == '*':
+                break
+            try:
+                verificaEndereco(endereco)
+                break
+            except ErroCadastroException:
+                print("Endereco invalido, por favor digite novamente.")
+                print("Lembre de escrever ao menos sua cidade, rua e numero!")
+                endereco = input("Endereco: ")
 
         return {"nome": nome, "endereco": endereco, "data_nascimento": data, "cpf": cpf}
     

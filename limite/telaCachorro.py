@@ -1,5 +1,7 @@
 from limite.telaAbstrata import TelaAbstrata
 from datetime import datetime
+from verificacao import verificaNome
+from exception.erroCadastroException import ErroCadastroException
 
 
 class TelaCachorro(TelaAbstrata):
@@ -48,9 +50,19 @@ class TelaCachorro(TelaAbstrata):
         print("-------- Alteracao de cachorro (insira 0 para retornar ou * para avançar) ---------")
         cachorro = {}
 
-        nome = input('Nome do cachorro: ')
-        if nome == '0':
-            return 0
+        # Verificacao de nome
+        nome = input("Nome do cachorro: ")
+        while True:
+            if nome == '0':
+                return 0
+            elif nome == '*':
+                break
+            try:
+                verificaNome(nome)
+                break
+            except ErroCadastroException:
+                print("Nome invalido, por favor digite novamente.")
+                nome = input("Nome: ")
         cachorro.update({'nome': nome})
 
         while True:

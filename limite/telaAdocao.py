@@ -189,7 +189,7 @@ class TelaAdocao(TelaAbstrata):
         print("Sem adotantes no sistema")
 
     def mensagem_sem_adocoes(self):
-        print("Nao existem adocoes no sistema")
+        print("Nao existem adocoes cadastradas no sistema")
 
     def mensagem_menor_idade(self):
         print("Para realizar uma adocao, o adotante precisa ter mais de 18 anos.")

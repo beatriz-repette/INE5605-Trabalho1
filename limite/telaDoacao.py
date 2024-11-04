@@ -2,6 +2,8 @@ from limite.telaAbstrata import TelaAbstrata
 from datetime import datetime
 from verificacao import verificaCPF
 from exception.CPFexception import CPFExecption
+from verificacao import verificaNome
+from exception.erroCadastroException import ErroCadastroException
 
 
 class TelaDoacao(TelaAbstrata):
@@ -43,7 +45,6 @@ class TelaDoacao(TelaAbstrata):
                 data = input("Data (formato DD/MM/YYYY): ")
 
         animal = {}
-        # Pensando em fazer um try/except para cada input e tirar o geral
         tipo_animal = input('Tipo de animal (Gato/Cachorro): ')
         while True:
             if tipo_animal == '0':
@@ -89,10 +90,17 @@ class TelaDoacao(TelaAbstrata):
                 chip_animal = input('Numero do chip do animal: ')
         animal.update({'chip': chip_animal})
 
-        nome_animal = input('Nome do animal: ')
-        if nome_animal == '0':
-            return 0
-        #Adicionar checagem para nome so terem letras ?
+        # Verificacao de nome
+        nome_animal = input("Nome do animal: ")
+        while True:
+            if nome_animal == '0':
+                return 0
+            try:
+                verificaNome(nome_animal)
+                break
+            except ErroCadastroException:
+                print("Nome invalido, por favor digite novamente.")
+                nome = input("Nome: ")
         animal.update({'nome': nome_animal})
 
         raca_animal = input('Raca do animal: ')

@@ -1,5 +1,6 @@
-from verificacao import verificaCPF
+from verificacao import verificaCPF, verificaEndereco, verificaNome
 from exception.CPFexception import CPFExecption
+from exception.erroCadastroException import ErroCadastroException
 from limite.telaAbstrata import TelaAbstrata
 from datetime import datetime
 
@@ -31,9 +32,17 @@ class TelaAdotante(TelaAbstrata):
                 print("O CPF digitado está incorreto, por favor o digite novamente.")
                 cpf = input("CPF: ")
 
+        #Verificacao de nome
         nome = input("Nome: ")
-        if nome == '0':
-            return 0
+        while True:
+            if nome == '0':
+                return 0
+            try:
+                 verificaNome(nome)
+                 break
+            except ErroCadastroException:
+                print("Nome invalido, por favor digite novamente.")
+                nome = input("Nome: ")
 
         data = input("Data de nascimento (formato dia/mes/ano): ")
         while True:
@@ -46,16 +55,25 @@ class TelaAdotante(TelaAbstrata):
                 print('Data invalida inserida.')
                 data = input("Data de nascimento (formato dia/mes/ano): ")
 
+        # Verificacao de endereco
         endereco = input("Endereco: ")
-        if endereco == '0':
-            return 0
+        while True:
+            if endereco == '0':
+                return 0
+            try:
+                verificaEndereco(endereco)
+                break
+            except ErroCadastroException:
+                print("Endereco invalido, por favor digite novamente.")
+                print("Lembre de escrever ao menos sua cidade, rua e numero!")
+                endereco = input("Endereco: ")
 
         print("Selecione seu tipo de habitacao: ")
         print("1- Casa")
         print("2- Apartamento Pequeno")
         print("3- Apartamento Medio")
         print("4- Apartamento Grande")
-        tipo_habitacao = input("Tipo de habitação: ") #Relacionar isso à classe "Tipo Habitacao"
+        tipo_habitacao = input("Tipo de habitação: ")
         while True:
             if tipo_habitacao == '0':
                 return 0
@@ -104,9 +122,20 @@ class TelaAdotante(TelaAbstrata):
                 print("O CPF digitado está incorreto, por favor o digite novamente.")
                 cpf = input("CPF: ")
 
+        # Verificacao de nome
         nome = input("Nome: ")
-        if nome == '0':
-            return 0
+        while True:
+            if nome == '0':
+                return 0
+            elif nome == '*':
+                break
+            try:
+                verificaNome(nome)
+                break
+            except ErroCadastroException:
+                print("Nome invalido, por favor digite novamente.")
+                nome = input("Nome: ")
+
 
         data = input("Data de nascimento (formato dia/mes/ano): ")
         while True:
@@ -121,9 +150,20 @@ class TelaAdotante(TelaAbstrata):
                 print('Data invalida inserida.')
                 data = input("Data de nascimento (formato dia/mes/ano): ")
 
+        # Verificacao de endereco
         endereco = input("Endereco: ")
-        if endereco == '0':
-            return 0
+        while True:
+            if endereco == '0':
+                return 0
+            elif endereco == '*':
+                break
+            try:
+                verificaEndereco(endereco)
+                break
+            except ErroCadastroException:
+                print("Endereco invalido, por favor digite novamente.")
+                print("Lembre de escrever ao menos sua cidade, rua e numero!")
+                endereco = input("Endereco: ")
 
         print("Selecione seu tipo de habitacao: ")
         print("1- Casa")
