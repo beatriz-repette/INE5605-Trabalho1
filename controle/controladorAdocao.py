@@ -31,10 +31,10 @@ class ControladorAdocao():
                     if adot.data_nascimento < datetime(date.today().year-18, date.today().month, date.today().day):
                             adotante_de_maior = True
             if adotante is None:
-                self.__telaAdocao.mensagem_sem_adotante()
+                self.__telaAdocao.mostrar_mensagem("Sem adotantes no sistema")
                 raise ErroRegistroException
             if not adotante_de_maior:
-                self.__telaAdocao.mensagem_menor_idade()
+                self.__telaAdocao.mostrar_mensagem("Para realizar uma adocao, o adotante precisa ter mais de 18 anos.")
                 raise ErroRegistroException
 
             adotante_ja_doou = False
@@ -42,28 +42,29 @@ class ControladorAdocao():
                 if doacao.doador == dados['cpf']:
                     adotante_ja_doou = True
             if adotante_ja_doou:
-                self.__telaAdocao.mensagem_ja_doou()
+                self.__telaAdocao.mostrar_mensagem("Para realizar uma adocao, o adotante nao pode ja ter doado um animal.")
                 raise ErroRegistroException
 
             animal = self.__controladorPrincipal.animal_por_chip(dados['animal'])
             if animal == 'Animal não se encontra no sistema.':
-                self.__telaAdocao.mensagem_no_animal()
+                self.__telaAdocao.mostrar_mensagem("Esse animal nao foi encontrado no sistema.")
                 raise ErroRegistroException
 
             vacinas_animal = []
             for vac in animal.vacinas:
                 vacinas_animal.append(vac.vacina._name_)
             if sorted(vacinas_animal) != sorted(['RAIVA', 'HEPATITE', 'LEPTOSPIROSE']):
-                self.__telaAdocao.mensagem_vacs_invalidas()
+                self.__telaAdocao.mostrar_mensagem("Esse animal nao possui todas as vacinas necessarias para poder ser adotado.")
                 raise ErroRegistroException
             
             if adotante.tipo_habitacao == Habitacao(2) and isinstance(animal, Cachorro) and animal.tamanho in ['g', 'G']:
-                self.__telaAdocao.mensagem_residencia_incompativel()
+                self.__telaAdocao.mostrar_mensagem("Tamanho do animal incompativel com a sua residencia.")
                 raise ErroRegistroException
 
             if self.animal_foi_adotado(animal.num_chip):
-                self.__telaAdocao.mensagem_ja_adotado()
+                self.__telaAdocao.mostrar_mensagem("O animal ja foi adotado.")
                 raise ErroRegistroException
+                raise ErroRegistroExceptio
 
             self.__adocoes.append(Adocao(dados['data'], dados['animal'], dados['cpf'], dados['assinou_termo']))
             self.__telaAdocao.mensagem_operacao_concluida()
@@ -90,11 +91,11 @@ class ControladorAdocao():
             if dados['animal'] != '*':
                 animal = self.__controladorPrincipal.animal_por_chip(dados['animal'])
                 if animal == 'Animal não se encontra no sistema.':
-                    self.__telaAdocao.mensagem_no_animal()
+                    self.__telaAdocao.mostrar_mensagem("Esse animal nao foi encontrado no sistema.")
                     raise ErroRegistroException
                 
                 if self.animal_foi_adotado(animal.num_chip) and animal.num_chip != adocao.animal:
-                    self.__telaAdocao.mensagem_ja_adotado()
+                    self.__telaAdocao.mostrar_mensagem("O animal ja foi adotado.")
                     raise ErroRegistroException
                 
                 adocao.animal = dados['animal']
@@ -104,10 +105,10 @@ class ControladorAdocao():
             if dados['cpf'] != '*':
                 adotante = self.__controladorPrincipal.controladorAdotante.adotante_por_cpf(dados['cpf'])
                 if adotante.data_nascimento > datetime(date.today().year-18, date.today().month, date.today().day):
-                    self.__telaAdocao.mensagem_menor_idade()
+                    self.__telaAdocao.mostrar_mensagem("Para realizar uma adocao, o adotante precisa ter mais de 18 anos.")
                     raise ErroRegistroException
                 if adotante is None:
-                    self.__telaAdocao.mensagem_sem_adotante()
+                    self.__telaAdocao.mostrar_mensagem("Sem adotantes no sistema")
                     raise ErroRegistroException
                     
 
@@ -116,7 +117,7 @@ class ControladorAdocao():
                     if doacao.doador == dados['cpf']:
                         adotante_ja_doou = True
                 if adotante_ja_doou:
-                    self.__telaAdocao.mensagem_ja_doou()
+                    self.__telaAdocao.mostrar_mensagem("Para realizar uma adocao, o adotante nao pode ja ter doado um animal.")
                     raise ErroRegistroException
                 
                 adocao.adotante = dados['cpf']
@@ -130,7 +131,7 @@ class ControladorAdocao():
                 adocao.assinou_termo = dados['assinou_termo']
 
             if adotante.tipo_habitacao._name_ == 'APARTAMENTO_PEQUENO' and isinstance(animal, Cachorro) and animal.tamanho in ['g', 'G']:
-                self.__telaAdocao.mensagem_residencia_incompativel()
+                self.__telaAdocao.mostrar_mensagem("Tamanho do animal incompativel com a sua residencia.")
                 raise ErroRegistroException
 
             self.__telaAdocao.mensagem_operacao_concluida()
@@ -139,7 +140,7 @@ class ControladorAdocao():
 
     def listar_adocoes(self):
         if self.__adocoes == []:
-            self.__telaAdocao.mensagem_sem_adocoes()
+            self.__telaAdocao.mostrar_mensagem("Nao existem adocoes cadastradas no sistema")
         else:
             n = 0
             for a in self.__adocoes:
@@ -164,7 +165,7 @@ class ControladorAdocao():
 
     def relatorio_adocao(self):
         if self.__adocoes == []:
-            self.__telaAdocao.mensagem_sem_adocoes()
+            self.__telaAdocao.mostrar_mensagem("Nao existem adocoes cadastradas no sistema")
         else:
             periodo = self.__telaAdocao.seleciona_periodo()
             n = 0
@@ -224,5 +225,3 @@ class ControladorAdocao():
             opcao = self.__telaAdocao.tela_opcoes()
             funcao_escolhida = switch[opcao]
             funcao_escolhida()
-
-
