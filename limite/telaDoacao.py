@@ -164,7 +164,7 @@ class TelaDoacao(TelaAbstrata):
                 break
             except (CPFExecption, ValueError):
                 print("O CPF digitado está incorreto, por favor o digite novamente.")
-                cpf = input("CPF: ")
+                cpf = input("CPF: ").replace(".", "").replace("-", "").strip()
 
         data = input("Data (formato DD/MM/YYYY): ")
         while True:

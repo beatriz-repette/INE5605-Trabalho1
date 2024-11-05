@@ -61,7 +61,12 @@ class ControladorGato():
             if dados['chip'] != '*':
                 if (self.__controladorPrincipal.animal_por_chip(dados['chip']) == 'Animal não se encontra no sistema.'
                     or dados['chip'] == gato.num_chip):
+                    doacao = self.__controladorPrincipal.controladorDoacao
+                    for doa in doacao.doacoes:
+                        if doa.animal == gato.num_chip:
+                            doa.animal = dados['chip']
                     gato.num_chip = dados['chip']
+
                 else:
                     self.__telaGato.mostrar_mensagem('Ja existe um animal com esse chip.')
             else:

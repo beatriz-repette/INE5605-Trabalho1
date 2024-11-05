@@ -1,6 +1,7 @@
 from entidade.doacao import Doacao
 from entidade.vacinacao import Vacinacao
 from entidade.vacina import Vacina
+from entidade.animal import Animal
 from limite.telaDoacao import TelaDoacao
 from exception.erroRegistroException import ErroRegistroException
 from exception.retornarException import RetornarException
@@ -48,7 +49,7 @@ class ControladorDoacao():
 
             self.__telaDoacao.mensagem_operacao_concluida()
 
-        except ErroRegistroException or ErroRegistroException:
+        except:
             pass
 
     def listar_doacoes(self):
@@ -98,18 +99,19 @@ class ControladorDoacao():
             if novos_dados_doacao == 0:
                 self.__telaDoacao.mensagem_operacao_cancelada()
                 raise RetornarException
-
-            doador_no_sistema = self.__controladorPrincipal.controladorDoador.doador_por_cpf(novos_dados_doacao['cpf'])
-
-            if doador_no_sistema is None:
-                self.__telaDoacao.mensagem_sem_doador()
-                self.__telaDoacao.mensagem_operacao_cancelada()
-                raise ErroRegistroException
             
             if novos_dados_doacao["cpf"] != '*':
+                doador_no_sistema = self.__controladorPrincipal.controladorDoador.doador_por_cpf(novos_dados_doacao['cpf'])
+                if doador_no_sistema is None and novos_dados_doacao["cpf"] != '*':
+                    self.__telaDoacao.mensagem_sem_doador()
+                    self.__telaDoacao.mensagem_operacao_cancelada()
+                    raise ErroRegistroException
                 doacao.doador = novos_dados_doacao["cpf"]
 
             if novos_dados_doacao["chip"] != '*':
+                animal = self.__controladorPrincipal.animal_por_chip(doacao.animal)
+                if self.__controladorPrincipal.animal_por_chip(novos_dados_doacao['chip']) == 'Animal não se encontra no sistema.':
+                    animal.num_chip = novos_dados_doacao["chip"]
                 doacao.animal = novos_dados_doacao["chip"]
 
             if novos_dados_doacao["data"] != '*':
@@ -120,8 +122,7 @@ class ControladorDoacao():
 
             self.__telaDoacao.mensagem_operacao_concluida()
 
-
-        except ErroRegistroException or ErroRegistroException:
+        except:
             pass
 
     def relatorio_doacao(self):

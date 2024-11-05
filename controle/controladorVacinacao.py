@@ -55,13 +55,15 @@ class ControladorVacinacao():
             self.__telaVacinacao.mostrar_mensagem("Erro ao registrar vacinacao.")
     
     def excluir_vacinacao(self, vac = None):
+
         if vac is None:
             vac = self.__telaVacinacao.selecionar_vacinacao()
-            animal = self.__controladorPrincipal.animal_por_chip(vac['chip'])
             vac = self.vacinacao_por_chip_vacina_data(vac['chip'], vac['vacina'], vac['data'])
-        if vac is not None and animal != 'Animal não se encontra no sistema.':
-            self.__vacinacoes.remove(vac)
-            animal.excluir_vacina(vac)
+        if vac is not None:
+            animal = self.__controladorPrincipal.animal_por_chip(vac.animal_chip)
+            if animal != 'Animal não se encontra no sistema.':
+                self.__vacinacoes.remove(vac)
+                animal.excluir_vacina(vac)
 
     def finalizar(self):
         self.__controladorPrincipal.abre_tela()
