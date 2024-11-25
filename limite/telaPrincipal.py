@@ -1,17 +1,39 @@
 from limite.telaAbstrata import TelaAbstrata
-
+import PySimpleGUI as sg
 
 class TelaPrincipal(TelaAbstrata):
+    def __init__(self):
+        self.__window = None
+        self.init_components()
+
     def tela_opcoes(self):
-        print("-------- ONG de Animais ---------")
-        print("Escolha sua opcao")
-        print("0 - Finalizar sistema")
-        print("1 - Doador")
-        print('2 - Adotante')
-        print("3 - Doacao")
-        print('4 - Adocao')
-        print('5 - Animais')
-        print('6 - Historico de Vacinacao')
-        
-        opcao = self.ler_int('Escolha uma opcao: ', [0, 1, 2, 3, 4, 5, 6])
+        self.init_components()
+        button, values = self.__window.Read()
+
+        if button in (None, 'Cancelar'):
+            opcao = 0
+
+        else:
+            for val in values:
+                if values[val]:
+                    opcao = val
+
+        self.__window.Close()
         return opcao
+
+    def init_components(self):
+        sg.ChangeLookAndFeel('DarkGreen')
+        layout = [
+            [sg.Text("-------- ONG de Animais ---------", font=("Times",25))],
+            [sg.Text('Escolha sua opção:', font=("Times",15))],
+            [sg.Radio('Doador', "RD1", key=1)],
+            [sg.Radio('Adotante', "RD1", key=2)],
+            [sg.Radio('Doacao', "RD1", key=3)],
+            [sg.Radio('Adocao', "RD1", key=4)],
+            [sg.Radio('Animais', "RD1", key=5)],
+            [sg.Radio('Historico de Vacinacao', "RD1", key=6)],
+            [sg.Radio('Finalizar sistema', "RD1", key=0)],
+            [sg.Button('Confirmar'), sg.Cancel('Cancelar')]
+        ]
+
+        self.__window = sg.Window('Menu').Layout(layout)
