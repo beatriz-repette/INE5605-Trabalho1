@@ -2,18 +2,26 @@ from limite.telaAbstrata import TelaAbstrata
 from datetime import datetime
 from verificacao import verificaNome
 from exception.erroCadastroException import ErroCadastroException
+import PySimpleGUI as sg
 
 class TelaGato(TelaAbstrata):
     def tela_opcoes(self):
-        print("-------- ONG de Animais ---------")
-        print("Escolha sua opcao")
-        print("0 - Retornar")
-        print("1 - Ver gatos")
-        print('2 - Adicionar vacina')
-        print('3 - Alterar gato')
-        print('4 - Excluir gato')
-        
-        opcao = self.ler_int('Escolha uma opcao: ', [0, 1, 2, 3, 4])
+        layout = [
+        [sg.Radio('Ver gatos', "RADIO1", key = 1, default = True, size=(10
+        ,1))],
+        [sg.Radio('Adicionar vacina', "RADIO1", key = 2)],
+        [sg.Radio('Alterar gato', "RADIO1", key = 3)],
+        [sg.Radio('Excluir gato', "RADIO1", key = 4)],
+        [sg.Submit(), sg.Cancel()]
+        ]
+        window = sg.Window('Gatos').Layout(layout)
+        button, values = window.Read()
+        opcao = 0
+        if button != 'Cancel':
+            for val in values:
+                if values[val]:
+                    opcao = val
+        window.close()
         return opcao
     
     def pegar_dados_gato(self):
