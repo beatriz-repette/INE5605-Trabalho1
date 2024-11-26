@@ -3,22 +3,100 @@ from exception.CPFexception import CPFExecption
 from exception.erroCadastroException import ErroCadastroException
 from limite.telaAbstrata import TelaAbstrata
 from datetime import datetime
+import PySimpleGUI as sg
 
 
 class TelaAdotante(TelaAbstrata):
-    def tela_opcoes(self): # Anteriormente funcao chamava-se "mostrar_opcoes"
-        print("-------- Adotante ----------")
-        print("Escolha a opcao:")
-        print("0 - Retornar")
-        print("1 - Incluir Adotante")
-        print("2 - Alterar Adotante")
-        print("3 - Listar Adotantes")
-        print("4 - Excluir Adotante")
+    def __init__(self):
+        self.__window = None
+        self.init_components()
 
-        opcao = self.ler_int('Escolha uma opcao: ', [0, 1, 2, 3, 4])
+    def init_components(self):
+        sg.ChangeLookAndFeel('DarkGreen')
+        layout = [
+            [sg.Text("-------- Adotante ----------", font=("Times",25,"bold"))],
+            [sg.Text('Escolha sua opção:', font=("Times",15))],
+            [sg.Radio('Incluir Adotante', "RD1", key=1)],
+            [sg.Radio('Alterar Adotante', "RD1", key=2)],
+            [sg.Radio('Listar Adotantes', "RD1", key=3)],
+            [sg.Radio('Excluir Adotante', "RD1", key=4)],
+            [sg.Button('Confirmar'), sg.Cancel('Cancelar')]
+        ]
+
+        self.__window = sg.Window('Menu').Layout(layout)
+
+    def tela_opcoes(self):
+        self.init_components()
+        button, values = self.__window.Read()
+
+        if button in (None, 'Cancelar'):
+            opcao = 0
+
+        else:
+            for val in values:
+                if values[val]:
+                    opcao = val
+
+        self.__window.Close()
         return opcao
 
     def pega_dados_adotante(self):
+        sg.ChangeLookAndFeel('DarkGreen')
+
+        layout = [
+            [sg.Text("-------- Dados Adotante ----------", font=("Times", 25, "bold"))],
+            [sg.Text("Insira os dados do adotante:", font=("Times",15))],
+            [sg.Text("CPF:"), sg.InputText(key = 'cpf')],
+            [sg.Text("Nome:"), sg.InputText(key = 'nome')],
+            [sg.Text("Data de nascimento:"), sg.Input(enable_events=True, key='data'), sg.CalendarButton("Selecionar Data", target="data", format="%d/%m/%Y")],
+            [sg.Text("Endereco:"), sg.InputText(key = 'endereco')],
+            [sg.Text("Tipo de habitacao:")],
+            [sg.Radio("Casa", "habitacao", key = 1),
+             sg.Radio("Apartamento Pequeno", "habitacao", key = 2),
+             sg.Radio("Apartamento Medio", "habitacao", key = 3),
+             sg.Radio("Apartamento Grande", "habitacao", key = 4)],
+            [sg.Checkbox("Possui um animal?", key = "possui_animal", tooltip="Marque se possui um animal")],
+            [sg.Button('Confirmar'), sg.Cancel('Cancelar')]
+        ]
+
+        self.__window = sg.Window('Menu').Layout(layout)
+
+        while True:
+            event, values = self.__window.Read()
+
+            if event == sg.WINDOW_CLOSED or event == "Cancelar":
+                return 0
+
+            if event == "Confirmar":
+                cpf = (values['cpf']).replace(".", "").replace("-", "").strip()
+                nome = values['nome']
+                data = values['data']
+                endereco = values['endereco']
+                possui_animal = "sim" if values["possui_animal"] else "nao"
+
+                #Determinar tipo de habitacao
+                for val in range(1, 5):
+                    if values[val]:
+                        tipo_habitacao = val
+
+                try:
+                    verificaCPF(cpf)
+                    verificaNome(nome)
+                    verificaEndereco(endereco)
+
+                    sg.popup("Cadastro realizado com sucesso!", title="Sucesso")
+                    self.__window.Close()
+                    return {"nome": nome, "endereco": endereco, "data_nascimento": data, "cpf": cpf,
+                            "tipo_habitacao": tipo_habitacao, "possui_animal": possui_animal}
+
+                except CPFExecption:
+                    sg.popup("CPF invalido!")
+                except Exception:
+                    sg.popup("Inputs errados") #fazer uma mensagem de texto bonitinha mais tarde
+
+
+
+        '''
         print("-------- Dados Adotante ----------")
         #Verificacao CPF
         cpf = input("CPF: ").replace(".", "").replace("-", "").strip()
@@ -103,9 +181,8 @@ class TelaAdotante(TelaAbstrata):
             except:
                 print('Insira uma opcao valida')
                 possui_animal = input("Possui animal? (sim/nao): ")
+        '''
 
-        return {"nome": nome, "endereco": endereco, "data_nascimento": data, "cpf": cpf, "tipo_habitacao": tipo_habitacao, "possui_animal": possui_animal}
-    
     def pega_dados_alterados_adotante(self):
         print("-------- Alteracao de Adotante (Insira 0 para cancelar ou * para avancar) ----------")
         #Verificacao CPF
