@@ -1,4 +1,5 @@
 from abc import ABC, abstractmethod
+import PySimpleGUI as sg
 
 
 class TelaAbstrata(ABC):
@@ -14,10 +15,13 @@ class TelaAbstrata(ABC):
                 print('Valor incorreto: Digite um valor numerico inteiro valido')
 
     def mensagem_operacao_cancelada(self):
-        print("Operacao cancelada")
+        sg.popup("Operacao cancelada", title="Cancelado")
 
     def mensagem_operacao_concluida(self):
-        print("Operacao realizada com sucesso!")
+        sg.popup("Operacao realizada com sucesso!", title="Sucesso")
+
+    def mensagem(self, m):
+        sg.popup(m)
     
     @abstractmethod
     def tela_opcoes(self): #Anteriormente funcao chamava-se "mostrar_opcoes"

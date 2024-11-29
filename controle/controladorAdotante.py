@@ -24,7 +24,7 @@ class ControladorAdotante:
                 raise RetornarException
             for doa in self.__adotantes:
                 if doa.cpf == dados_adotante["cpf"]:
-                    self.__telaAdotante.mensagem_erro_cadastro()
+                    self.__telaAdotante.mensagem("Erro ao cadastrar adotante, CPF inserido ja cadastrado.")
                     raise ErroCadastroException
             adotante = Adotante(dados_adotante["cpf"], dados_adotante["nome"], dados_adotante["data_nascimento"],
                                 dados_adotante["endereco"], Habitacao(dados_adotante["tipo_habitacao"]), dados_adotante["possui_animal"])
@@ -44,7 +44,8 @@ class ControladorAdotante:
 
         if adotante is not None:
             try:
-                novos_dados_adotante = self.__telaAdotante.pega_dados_alterados_adotante()
+                self.__telaAdotante.mensagem("A seguir, insira os novos dados do adotante.")
+                novos_dados_adotante = self.__telaAdotante.pega_dados_adotante()
 
                 if novos_dados_adotante == 0:
                     self.__telaAdotante.mensagem_operacao_cancelada()
@@ -53,7 +54,7 @@ class ControladorAdotante:
                 if novos_dados_adotante["cpf"] != '*':
                     # Verifica se ja existe um cadastro com o novo cpf informado
                     if self.adotante_por_cpf(novos_dados_adotante['cpf']) is not None:
-                        self.__telaAdotante.mensagem_erro_cadastro()
+                        self.__telaAdotante.mensagem("Erro ao cadastrar adotante, CPF inserido ja cadastrado.")
                         raise ErroCadastroException
                     adotante.cpf = novos_dados_adotante["cpf"]
 
@@ -77,19 +78,26 @@ class ControladorAdotante:
             except ErroCadastroException or RetornarException:
                 pass
         else:
-            self.__telaAdotante.mensagem_adotante_nao_existente()
+            self.__telaAdotante.mensagem("Nao existe nenhum cadastro de adotante com esse CPF.")
 
     def listar_adotantes(self):
         if self.__adotantes == []:
-            self.__telaAdotante.mensagem_non_existent()
+            self.__telaAdotante.mensagem("Nao existem adotantes no sistema.")
         else:
-            for adotante in self.__adotantes:
-                self.__telaAdotante.mostra_adotante({"nome": adotante.nome,
-                                                    "endereco": adotante.endereco,
-                                                    "cpf": adotante.cpf,
-                                                    "data_nascimento": adotante.data_nascimento,
-                                                    "tipo_habitacao": adotante.tipo_habitacao._name_.replace('_', " "),
-                                                    "possui_animal": adotante.possui_animal})
+            dados_tabela = [
+                [
+                    adotante.nome,
+                    adotante.endereco,
+                    adotante.cpf,
+                    adotante.data_nascimento.strftime('%d/%m/%Y'),
+                    adotante.tipo_habitacao._name_.replace('_', ' '),
+                    "Sim" if adotante.possui_animal else "Não"
+                ]
+                for adotante in self.__adotantes
+            ]
+
+            # Envia os dados para a View
+            self.__telaAdotante.mostra_adotante(dados_tabela)
 
     def excluir_adotante(self):
         cpf_adotante = self.__telaAdotante.seleciona_adotante()  # Seleciona retorna o cpf para fazer buscas em listas
@@ -99,7 +107,7 @@ class ControladorAdotante:
             self.__adotantes.remove(adotante)
             self.__telaAdotante.mensagem_operacao_concluida()
         else:
-            self.__telaAdotante.mensagem_adotante_nao_existente()
+            self.__telaAdotante.mensagem("Nao existe nenhum cadastro de adotante com esse CPF.")
 
     @property
     def adotantes(self):

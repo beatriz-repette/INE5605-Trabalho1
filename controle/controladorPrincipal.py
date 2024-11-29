@@ -89,6 +89,7 @@ class ControladorPrincipal:
         self.abre_tela()
 
     def encerrar_sistema(self):
+        self.__tela_principal.mensagem("Sistema Finalizado.")
         exit(0)
 
     def animal_por_chip(self, id):

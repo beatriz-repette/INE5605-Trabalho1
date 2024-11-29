@@ -1,4 +1,6 @@
 from exception.CPFexception import CPFExecption
+from exception.nomeException import NomeException
+from exception.enderecoException import EnderecoException
 from exception.erroCadastroException import ErroCadastroException
 #Classe para armazenar funcoes de verificacao
 
@@ -48,11 +50,11 @@ def verificaEndereco(e):
     if (any(c.isalpha() for c in e) and any(c.isspace() for c in e)) and any(c.isdigit() for c in e):
         pass
     else:
-        raise ErroCadastroException
+        raise EnderecoException
 
 def verificaNome(nome):
     nome = nome.replace(" ","")
     if nome.isalpha():
         pass
     else:
-        raise ErroCadastroException
+        raise NomeException
