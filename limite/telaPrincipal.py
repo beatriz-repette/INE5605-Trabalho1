@@ -32,7 +32,7 @@ class TelaPrincipal(TelaAbstrata):
             [sg.Radio('Adocao', "RD1", key=4)],
             [sg.Radio('Animais', "RD1", key=5)],
             [sg.Radio('Historico de Vacinacao', "RD1", key=6)],
-            [sg.Radio('Finalizar Sistema', "RD1", key=0)],
+            [sg.Radio('Finalizar Sistema', "RD1", key=0, default = True)],
             [sg.Button('Confirmar'), sg.Cancel('Cancelar')]
         ]
 
