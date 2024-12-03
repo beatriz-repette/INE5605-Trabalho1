@@ -246,9 +246,3 @@ class TelaDoacao(TelaAbstrata):
                 print('Data invalida inserida.')
                 data_final = input("Fim do periodo (formato DD/MM/YYYY): ")
         return {'inicio': data_inicial, 'fim': data_final}
-        
-    def mensagem_sem_doador(self):
-        print("Doador nao encontrado no sistema")
-
-    def mensagem_sem_doacoes(self):
-        print("Nao existem doacoes cadastradas no sistema")

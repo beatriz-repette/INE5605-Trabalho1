@@ -3,161 +3,200 @@ from limite.telaAbstrata import TelaAbstrata
 from exception.CPFexception import CPFExecption
 from exception.erroCadastroException import ErroCadastroException
 from datetime import datetime
-
+import PySimpleGUI as sg
+from exception.nomeException import NomeException
+from exception.enderecoException import EnderecoException
 
 class TelaDoador(TelaAbstrata):
-    def tela_opcoes(self):
-        print("-------- Doador ----------")
-        print("Escolha uma opcao:")
-        print("0 - Retornar")
-        print("1 - Incluir Doador")
-        print("2 - Alterar Doador")
-        print("3 - Listar Doadores")
-        print("4 - Excluir Doador")
+    def __init__(self):
+        self.__window = None
+        self.init_components()
 
-        opcao = self.ler_int('Escolha uma opcao: ', [0, 1, 2, 3, 4])
-        return opcao
+    def init_components(self):
+        sg.ChangeLookAndFeel('DarkGreen')
+        layout = [
+            [sg.Text("-------- Doador ----------", font=("Times",25,"bold"))],
+            [sg.Text('Escolha sua opção:', font=("Times",15))],
+            [sg.Radio('Incluir Doador', "RD1", key=1)],
+            [sg.Radio('Alterar Doador', "RD1", key=2)],
+            [sg.Radio('Listar Doadores', "RD1", key=3)],
+            [sg.Radio('Excluir Doador', "RD1", key=4)],
+            [sg.Button('Confirmar'), sg.Cancel('Cancelar')]
+        ]
+
+        self.__window = sg.Window('Menu').Layout(layout)
+
+    def tela_opcoes(self):
+        self.init_components()
+        button, values = self.__window.Read()
+
+        if button in (None, 'Cancelar'):
+            opcao = 0
+
+        else:
+            for val in values:
+                if values[val]:
+                    opcao = val
+
+        self.__window.Close()
+        try:
+            return opcao
+        except UnboundLocalError:
+            return 0
 
     def pega_dados_doador(self):
-        print("-------- Dados Doador (Digite 0 para retornar) ----------")
+        sg.ChangeLookAndFeel('DarkGreen')
 
-        #Verificacao CPF
-        cpf = input("CPF: ").replace(".", "").replace("-", "").replace(" ", "")
+        layout = [
+            [sg.Text("-------- Dados Doador ----------", font=("Times", 25, "bold"))],
+            [sg.Text("Insira os dados do doador:", font=("Times", 15))],
+            [sg.Text("CPF:"), sg.InputText(key='cpf')],
+            [sg.Text("Nome:"), sg.InputText(key='nome')],
+            [sg.Text("Data de nascimento:"), sg.Input(enable_events=True, key='data'),
+             sg.CalendarButton("Selecionar Data", target="data", format="%d/%m/%Y")],
+            [sg.Text("Endereco:"), sg.InputText(key='endereco')],
+            [sg.Button('Confirmar'), sg.Cancel('Cancelar')]
+        ]
+
+        self.__window = sg.Window('Menu').Layout(layout)
+
         while True:
-            if cpf == '0':
+            event, values = self.__window.Read()
+
+            if event == sg.WINDOW_CLOSED or event == "Cancelar":
+                self.__window.Close()
                 return 0
-            try:
-                verificaCPF(cpf)
-                break
-            except CPFExecption or ValueError:
-                print("O CPF digitado está incorreto, por favor o digite novamente.")
-                cpf = input("CPF: ").replace(".", "").replace("-", "").replace(" ", "")
 
-        # Verificacao de nome
-        nome = input("Nome: ")
-        while True:
-            if nome == '0':
-                return 0
-            try:
-                verificaNome(nome)
-                break
-            except ErroCadastroException:
-                print("Nome invalido, por favor digite novamente.")
-                nome = input("Nome: ")
 
-        data = input("Data de nascimento (formato DD/MM/YYYY): ")
-        while True:
-            if data == '0':
-                return 0
-            try:
-                data = datetime.strptime(data, '%d/%m/%Y')
-                break
-            except: 
-                print('Data invalida inserida.')
-                data = input("Data de nascimento (formato dia/mes/ano): ")
+            if event == "Confirmar":
+                cpf = (values['cpf']).replace(".", "").replace("-", "").strip()
+                nome = values['nome']
+                endereco = values['endereco']
 
-        # Verificacao de endereco
-        endereco = input("Endereco: ")
-        while True:
-            if endereco == '0':
-                return 0
-            try:
-                verificaEndereco(endereco)
-                break
-            except ErroCadastroException:
-                print("Endereco invalido, por favor digite novamente.")
-                print("Lembre de escrever ao menos sua cidade, rua e numero!")
-                endereco = input("Endereco: ")
+                try:
+                    data = datetime.strptime(values['data'], "%d/%m/%Y")
 
-        return {"nome": nome, "endereco": endereco, "data_nascimento": data, "cpf": cpf}
-    
-    def pega_dados_alterados_doador(self):
-        print("-------- Dados Doador (Insira 0 para cancelar ou * para avancar) ----------")
+                    verificaCPF(cpf)
+                    verificaNome(nome)
+                    verificaEndereco(endereco)
 
-        #Verificacao CPF
-        cpf = input("CPF: ").replace(".", "").replace("-", "").replace(" ", "")
-        while True:
-            if cpf == '0':
-                return 0
-            elif cpf == '*':
-                break
-            try:
-                verificaCPF(cpf)
-                break
-            except CPFExecption or ValueError:
-                print("O CPF digitado está incorreto, por favor o digite novamente.")
-                cpf = input("CPF: ").replace(".", "").replace("-", "").replace(" ", "")
+                    self.__window.Close()
+                    return {"nome": nome, "endereco": endereco, "data_nascimento": data, "cpf": cpf}
 
-        # Verificacao de nome
-        nome = input("Nome: ")
-        while True:
-            if nome == '0':
-                return 0
-            elif nome == '*':
-                break
-            try:
-                verificaNome(nome)
-                break
-            except ErroCadastroException:
-                print("Nome invalido, por favor digite novamente.")
-                nome = input("Nome: ")
+                except CPFExecption:
+                    sg.popup("O CPF digitado está incorreto, por favor o digite novamente.")
+                except NomeException:
+                    sg.popup("Nome invalido, por favor digite novamente."
+                             "\nLembre de inserir seu nome completo.") #Ver como pular a linha dentro do popup!!
+                except EnderecoException:
+                    sg.popup("Endereco invalido, por favor digite novamente."
+                             "\nLembre de escrever ao menos sua cidade, rua e numero!")
+                except (UnboundLocalError, ValueError):  # Para caso existam campos nao preenchidos
+                    sg.popup("Lembre-se de preencher todos os campos!")
 
-        data = input("Data de nascimento (formato DD/MM/YYYY): ")
-        while True:
-            if data == '0':
-                return 0
-            elif data == '*':
-                break
-            try:
-                data = datetime.strptime(data, '%d/%m/%Y')
-                break
-            except: 
-                print('Data invalida inserida.')
-                data = input("Data de nascimento (formato dia/mes/ano): ")
-
-        # Verificacao de endereco
-        endereco = input("Endereco: ")
-        while True:
-            if endereco == '0':
-                return 0
-            elif endereco == '*':
-                break
-            try:
-                verificaEndereco(endereco)
-                break
-            except ErroCadastroException:
-                print("Endereco invalido, por favor digite novamente.")
-                print("Lembre de escrever ao menos sua cidade, rua e numero!")
-                endereco = input("Endereco: ")
-
-        return {"nome": nome, "endereco": endereco, "data_nascimento": data, "cpf": cpf}
-    
     def seleciona_doador(self):
-        cpf = input("CPF do doador que deseja selecionar: ").replace(".", "").replace("-", "").replace(" ", "")
-        while True:
-            if cpf == '0':
-                return 0
-            try:
-                verificaCPF(cpf)
-                break
-            except CPFExecption or ValueError:
-                print("O CPF digitado está incorreto, por favor o digite novamente.")
-                cpf = input("CPF: ").replace(".", "").replace("-", "").replace(" ", "")
-        return cpf
+        sg.ChangeLookAndFeel('DarkGreen')
 
+        layout = [
+            [sg.Text("CPF do doador que deseja selecionar:"), sg.InputText(key='cpf')],
+            [sg.Button('Confirmar'), sg.Cancel('Cancelar')]
+        ]
+
+        self.__window = sg.Window('Menu').Layout(layout)
+
+        while True:
+            event, values = self.__window.Read()
+
+            if event == sg.WINDOW_CLOSED or event == "Cancelar":
+                self.__window.Close()
+                return 0
+
+            if event == "Confirmar":
+                cpf = (values['cpf']).replace(".", "").replace("-", "").strip()
+
+                try:
+                    verificaCPF(cpf)
+                    self.__window.Close()
+                    return cpf
+
+                except CPFExecption:
+                    sg.popup("O CPF digitado está incorreto, por favor o digite novamente.")
+
+    def pega_dados_alterados_doador(self): #igual o anterior, mas sem a opcao de cpf
+        sg.ChangeLookAndFeel('DarkGreen')
+
+        layout = [
+            [sg.Text("-------- Dados Doadores Alterados ----------", font=("Times", 25, "bold"))],
+            [sg.Text("Insira os novos dados do doador:", font=("Times",15))],
+            [sg.Text("Nome:"), sg.InputText(key = 'nome')],
+            [sg.Text("Data de nascimento:"), sg.Input(enable_events=True, key='data'), sg.CalendarButton("Selecionar Data", target="data", format="%d/%m/%Y")],
+            [sg.Text("Endereco:"), sg.InputText(key = 'endereco')],
+            [sg.Text("Tipo de habitacao:")],
+            [sg.Radio("Casa", "habitacao", key = 1),
+             sg.Radio("Apartamento Pequeno", "habitacao", key = 2),
+             sg.Radio("Apartamento Medio", "habitacao", key = 3),
+             sg.Radio("Apartamento Grande", "habitacao", key = 4)],
+            [sg.Checkbox("Possui um animal?", key = "possui_animal", tooltip="Marque se possui um animal")],
+            [sg.Button('Confirmar'), sg.Cancel('Cancelar')]
+        ]
+
+        self.__window = sg.Window('Menu').Layout(layout)
+
+        while True:
+            event, values = self.__window.Read()
+
+            if event == sg.WINDOW_CLOSED or event == "Cancelar":
+                self.__window.Close()
+                return 0
+
+
+            if event == "Confirmar":
+                nome = values['nome']
+                endereco = values['endereco']
+                possui_animal = values["possui_animal"]
+
+                #Determinar tipo de habitacao
+                for val in range(1, 5):
+                    if values[val]:
+                        tipo_habitacao = val
+
+                try:
+                    data = datetime.strptime(values['data'], "%d/%m/%Y")
+
+                    verificaNome(nome)
+                    verificaEndereco(endereco)
+
+                    self.__window.Close()
+                    return {"nome": nome, "endereco": endereco, "data_nascimento": data,
+                            "tipo_habitacao": tipo_habitacao, "possui_animal": possui_animal}
+
+                except NomeException:
+                    sg.popup("Nome invalido, por favor digite novamente."
+                             "\nLembre de inserir seu nome completo.") #Ver como pular a linha dentro do popup!!
+                except EnderecoException:
+                    sg.popup("Endereco invalido, por favor digite novamente."
+                             "\nLembre de escrever ao menos sua cidade, rua e numero!")
+                except (UnboundLocalError, ValueError): #Para caso existam campos nao preenchidos
+                    sg.popup("Lembre-se de preencher todos os campos!")
 
     def mostra_doador(self, dados_doador):
-        print('------------------')
-        print("NOME DO DOADOR:", dados_doador["nome"])
-        print("CPF DO DOADOR:", dados_doador["cpf"])
-        print("DATA NASCIMENTO:", dados_doador["data_nascimento"].strftime('%d/%m/%Y'))
-        print("ENDERECO:", dados_doador["endereco"])
+        layout = [
+            [sg.Text("Lista de Doadores", font=("Times", 25, "bold"))],
+            [sg.Table(values=dados_doador,
+                      headings=["Nome", "Endereço", "CPF", "Data de Nascimento"],
+                      auto_size_columns=True,
+                      justification='center',
+                      num_rows=10,
+                      key='-TABELA-')],
+            [sg.Button("Fechar")]
+        ]
 
-    def mensagem_erro_cadastro(self):
-        print("Erro ao cadastrar doador, CPF inserido ja cadastrado")
+        # Criar janela para exibir a tabela
+        window = sg.Window("Doadores", layout)
 
-    def mensagem_doador_nao_existente(self):
-        print("Nao existe nenhum cadastro de doador com esse CPF")
+        while True:
+            event, values = window.read()
+            if event in (sg.WINDOW_CLOSED, "Fechar"):
+                break
 
-    def mensagem_non_existent(self):
-        print("Nao existem doadores no sistema")
+        window.close()

@@ -40,7 +40,10 @@ class TelaAdotante(TelaAbstrata):
                     opcao = val
 
         self.__window.Close()
-        return opcao
+        try:
+            return opcao
+        except UnboundLocalError:
+            return 0
 
     def pega_dados_adotante(self):
         sg.ChangeLookAndFeel('DarkGreen')
@@ -101,8 +104,67 @@ class TelaAdotante(TelaAbstrata):
                 except EnderecoException:
                     sg.popup("Endereco invalido, por favor digite novamente."
                              "\nLembre de escrever ao menos sua cidade, rua e numero!")
-                except Exception: #Para caso existam campos nao preenchidos
+                except (UnboundLocalError, ValueError): #Para caso existam campos nao preenchidos
                     sg.popup("Lembre-se de preencher todos os campos!")
+
+    def pega_dados_alterados_adotante(self): #igual o anterior, mas sem a opcao de cpf
+        sg.ChangeLookAndFeel('DarkGreen')
+
+        layout = [
+            [sg.Text("-------- Dados Adotante Alterados ----------", font=("Times", 25, "bold"))],
+            [sg.Text("Insira os novos dados do adotante:", font=("Times",15))],
+            [sg.Text("Nome:"), sg.InputText(key = 'nome')],
+            [sg.Text("Data de nascimento:"), sg.Input(enable_events=True, key='data'), sg.CalendarButton("Selecionar Data", target="data", format="%d/%m/%Y")],
+            [sg.Text("Endereco:"), sg.InputText(key = 'endereco')],
+            [sg.Text("Tipo de habitacao:")],
+            [sg.Radio("Casa", "habitacao", key = 1),
+             sg.Radio("Apartamento Pequeno", "habitacao", key = 2),
+             sg.Radio("Apartamento Medio", "habitacao", key = 3),
+             sg.Radio("Apartamento Grande", "habitacao", key = 4)],
+            [sg.Checkbox("Possui um animal?", key = "possui_animal", tooltip="Marque se possui um animal")],
+            [sg.Button('Confirmar'), sg.Cancel('Cancelar')]
+        ]
+
+        self.__window = sg.Window('Menu').Layout(layout)
+
+        while True:
+            event, values = self.__window.Read()
+
+            if event == sg.WINDOW_CLOSED or event == "Cancelar":
+                self.__window.Close()
+                return 0
+
+
+            if event == "Confirmar":
+                nome = values['nome']
+                endereco = values['endereco']
+                possui_animal = values["possui_animal"]
+
+                #Determinar tipo de habitacao
+                for val in range(1, 5):
+                    if values[val]:
+                        tipo_habitacao = val
+
+                try:
+                    data = datetime.strptime(values['data'], "%d/%m/%Y")
+                    #Adicionar checagem para ver se a data ja ocorreu!!
+
+                    verificaNome(nome)
+                    verificaEndereco(endereco)
+
+                    self.__window.Close()
+                    return {"nome": nome, "endereco": endereco, "data_nascimento": data,
+                            "tipo_habitacao": tipo_habitacao, "possui_animal": possui_animal}
+
+                except NomeException:
+                    sg.popup("Nome invalido, por favor digite novamente."
+                             "\nLembre de inserir seu nome completo.") #Ver como pular a linha dentro do popup!!
+                except EnderecoException:
+                    sg.popup("Endereco invalido, por favor digite novamente."
+                             "\nLembre de escrever ao menos sua cidade, rua e numero!")
+                except (UnboundLocalError, ValueError): #Para caso existam campos nao preenchidos
+                    sg.popup("Lembre-se de preencher todos os campos!")
+
 
     def seleciona_adotante(self):
         sg.ChangeLookAndFeel('DarkGreen')
@@ -133,16 +195,6 @@ class TelaAdotante(TelaAbstrata):
                     sg.popup("O CPF digitado está incorreto, por favor o digite novamente.")
 
     def mostra_adotante(self, dados_adotante):
-        '''
-        print("------------------")
-        print("NOME DO ADOTANTE:", dados_adotante["nome"])
-        print("CPF DO ADOTANTE:", dados_adotante["cpf"])
-        print("DATA NASCIMENTO:", dados_adotante["data_nascimento"].strftime('%d/%m/%Y'))
-        print("ENDERECO:", dados_adotante["endereco"])
-        print("TIPO DE HABITACAO:", dados_adotante["tipo_habitacao"])
-        print("POSSUI ANIMAL?:", "SIM" if dados_adotante["possui_animal"] else "NAO")
-        '''
-
         layout = [
             [sg.Text("Lista de Adotantes", font=("Times", 25, "bold"))],
             [sg.Table(values=dados_adotante,

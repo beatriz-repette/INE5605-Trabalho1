@@ -1,80 +1,99 @@
+from exception.chipException import ChipException
 from limite.telaAbstrata import TelaAbstrata
 from datetime import date, datetime
-from verificacao import verificaCPF
+from verificacao import verificaCPF, verificaChip
 from exception.CPFexception import CPFExecption
+import PySimpleGUI as sg
 
 
 class TelaAdocao(TelaAbstrata):
-    def tela_opcoes(self): #Anteriormente funcao chamava-se "mostrar_opcoes"
-        print("-------- Adocao ----------")
-        print("Escolha a opcao")
-        print("0 - Retornar")
-        print("1 - Registrar Adocao")
-        print('2 - Alterar Adocao')
-        print("3 - Listar Adocoes")
-        print('4 - Excluir Adocao')
-        print('5 - Relatorio de Adocoes')
+    def __init__(self):
+        self.__window = None
+        self.init_components()
 
-        opcao = self.ler_int('Escolha uma opcao: ', [0, 1, 2, 3, 4, 5])
-        return opcao
+    def init_components(self):
+        sg.ChangeLookAndFeel('DarkGreen')
+        layout = [
+            [sg.Text("-------- Adocao ----------", font=("Times",25,"bold"))],
+            [sg.Text('Escolha sua opção:', font=("Times",15))],
+            [sg.Radio('Registrar Adocao', "RD1", key=1)],
+            [sg.Radio('Alterar Adocao', "RD1", key=2)],
+            [sg.Radio('Listar Adocoes', "RD1", key=3)],
+            [sg.Radio('Excluir Adocao', "RD1", key=4)],
+            [sg.Radio('Relatorio de Adocoes', "RD1", key=4)],
+            [sg.Button('Confirmar'), sg.Cancel('Cancelar')]
+        ]
+
+    def tela_opcoes(self):
+        self.init_components()
+        button, values = self.__window.Read()
+
+        if button in (None, 'Cancelar'):
+            opcao = 0
+
+        else:
+            for val in values:
+                if values[val]:
+                    opcao = val
+
+        self.__window.Close()
+        try:
+            return opcao
+        except UnboundLocalError:
+            return 0
 
     def pega_dados_adocao(self):
-        print("-------- Dados Adocao (Digite 0  para retornar) ----------")
-        #Adicionar verificacao de tipo para cada um desses dados
-        cpf = input("CPF: ").replace(".", "").replace("-", "").strip()
+        sg.ChangeLookAndFeel('DarkGreen')
+
+        layout = [
+            [sg.Text("-------- Dados Adocao ----------", font=("Times", 25, "bold"))],
+            [sg.Text("Insira os dados do adotante:", font=("Times",15))],
+            [sg.Text("CPF:"), sg.InputText(key = 'cpf')],
+            [sg.Text("Chip do animal:"), sg.InputText(key = 'animal')], #Precisa ser inteiro e maior que zero
+            [sg.Text("Data:"), sg.Input(enable_events=True, key='data'), sg.CalendarButton("Selecionar Data", target="data", format="%d/%m/%Y")],
+            [sg.Checkbox("Assinou termo?", key = "assinou_termo")],
+            [sg.Button('Confirmar'), sg.Cancel('Cancelar')]
+        ]
+
+        self.__window = sg.Window('Menu').Layout(layout)
+
+        #######
         while True:
-            if cpf == '0':
+            event, values = self.__window.Read()
+
+            if event == sg.WINDOW_CLOSED or event == "Cancelar":
+                self.__window.Close()
                 return 0
-            try:
-                verificaCPF(cpf)
-                break
-            except (CPFExecption, ValueError):
-                print("O CPF digitado está incorreto, por favor o digite novamente.")
-                cpf = input("CPF: ")
 
-        animal = input('Chip do animal: ')
-        while True:
-            try:
-                animal = int(animal)
-                if animal < 0:
-                    raise Exception
-                break
-            except:
-                print('ID invalido inserido.')
-                animal = input('Chip do animal: ')
 
-        data = input("Data (formato dia/mes/ano): ")
-        while True:
-            if data == '0':
-                return 0
-            try:
-                data = datetime.strptime(data, '%d/%m/%Y')
-                break
-            except: 
-                print('Data invalida inserida.')
-                data = input("Data (formato dia/mes/ano): ")
+            if event == "Confirmar":
+                cpf = (values['cpf']).replace(".", "").replace("-", "").strip()
+                animal = values['animal']
+                assinou_termo = values["assinou_termo"]
 
-        assinou_termo = input("Assinou o termo de responsabilidade? (sim/nao): ")
-        while True:
-            if assinou_termo == '0':
-                return 0
-            try:
-                assinou_termo = assinou_termo.lower()
-                if assinou_termo in ['sim', 'Sim']:
-                    assinou_termo = True
-                    break
-                elif assinou_termo in ['nao', 'Nao']:
-                    assinou_termo = False
-                    break
-                else:
-                    raise Exception
-            except:
-                print('Insira uma opcao valida')
-                assinou_termo = input("Assinou o termo de responsabilidade? (sim/nao): ")
 
-        return {"data": data, "animal": animal, "cpf": cpf, "assinou_termo": assinou_termo}
+                try:
+                    data = datetime.strptime(values['data'], "%d/%m/%Y")
+
+                    verificaCPF(cpf)
+                    verificaChip(animal)
+                    #Add verifica data depois
+
+                    self.__window.Close()
+                    return {"data": data, "animal": animal, "cpf": cpf, "assinou_termo": assinou_termo}
+
+                except CPFExecption:
+                    sg.popup("O CPF digitado está incorreto, por favor o digite novamente.")
+                except ChipException:
+                    sg.popup("O valor de chip do animal inserido esta incorreto\n"
+                             "Lembre que esse valor deve ser um inteiro positivo.")
+                except (UnboundLocalError, ValueError): #Para caso existam campos nao preenchidos
+                    sg.popup("Lembre-se de preencher todos os campos!")
     
     def pega_dados_alterados_adocao(self):
+
+        #DECIDIR COMO FAZER ISSO POR CAUSA DO DAO
+
         print("-------- Alteracao de Adocao (Insira 0 para retornar ou * para avancar) ----------")
         #Adicionar verificacao de tipo para cada um desses dados
         cpf = input("CPF: ").replace(".", "").replace("-", "").strip()
@@ -138,20 +157,34 @@ class TelaAdocao(TelaAbstrata):
 
         return {"data": data, "animal": animal, "cpf": cpf, "assinou_termo": assinou_termo}
     
-    def seleciona_adocao(self, len):
-        adocao = input("Posicao da adocao na database (Digite * para retornar): ")
+    def seleciona_adocao(self, len): #Ver se isso vai funcionar
+        sg.ChangeLookAndFeel('DarkGreen')
+
+        layout = [
+            [sg.Text("Posicao da adocao na database:"), sg.InputText(key='adocao')],
+            [sg.Button('Confirmar'), sg.Cancel('Cancelar')]
+        ]
+
+        self.__window = sg.Window('Menu').Layout(layout)
+
         while True:
-            if adocao == '*':
-                break
-            try:
-                adocao = int(adocao)
-                if adocao < 0 or adocao >= len:
-                    raise ValueError
-                break
-            except ValueError:
-                print("Por favor, insira uma posicao valida.")
-                adocao = input("Posicao da adocao na database (Digite * para retornar): ")
-        return adocao
+            event, values = self.__window.Read()
+
+            if event == sg.WINDOW_CLOSED or event == "Cancelar":
+                self.__window.Close()
+                return 0
+
+            if event == "Confirmar":
+                cpf = (values['cpf']).replace(".", "").replace("-", "").strip()
+
+                try:
+                    adocao = int(adocao)
+                    if adocao < 0 or adocao >= len:
+                        raise ValueError
+                    self.__window.Close()
+                    return adocao
+                except ValueError:
+                    sg.popup("Por favor, insira uma posicao valida.")
     
     def seleciona_periodo(self):
         print('-------- Relatorio de Adocoes --------')
@@ -178,33 +211,9 @@ class TelaAdocao(TelaAbstrata):
         return {'inicio': data_inicial, 'fim': data_final}
 
     def mostrar_adocao(self, dados, n):
-        print('-------- Adocao:', n, '----------')
+        print('-------- Adocao:', n, '----------') #Pesquisar como botar esse "n" na interface
         print('Animal: ' + dados['animal'])
         print('Data da adocao: ' + dados['data'].strftime('%d/%m/%Y'))
         print('Numero do chip: ' + str(dados['chip']))
         print('CPF do adotante: ' + dados['cpf'])
         print('Assinou o termo de responsabilidade: ' + "SIM" if dados['assinou_termo'] else "NAO")
-
-    def mensagem_sem_adotante(self):
-        print("Sem adotantes no sistema")
-
-    def mensagem_sem_adocoes(self):
-        print("Nao existem adocoes cadastradas no sistema")
-
-    def mensagem_menor_idade(self):
-        print("Para realizar uma adocao, o adotante precisa ter mais de 18 anos.")
-
-    def mensagem_ja_doou(self):
-        print("Para realizar uma adocao, o adotante nao pode ja ter doado um animal.")
-
-    def mensagem_no_animal(self):
-        print("Esse animal nao foi encontrado no sistema.")
-
-    def mensagem_vacs_invalidas(self):
-        print("Esse animal nao possui todas as vacinas necessarias para poder ser adotado.")
-
-    def mensagem_residencia_incompativel(self):
-        print("Tamanho do animal incompativel com a sua residencia.")
-
-    def mensagem_ja_adotado(self):
-        print("O animal ja foi adotado.")
