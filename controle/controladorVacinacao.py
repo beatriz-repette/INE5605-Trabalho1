@@ -29,7 +29,7 @@ class ControladorVacinacao():
             else:
                 self.__telaVacinacao.mostrar_vacinacao({
                     'data': vac.data,
-                    'nome': vac.vacina,
+                    'nome': vac.vacina._name_,
                     'animal': '[Animal nao encontrado]'
                 })
             
