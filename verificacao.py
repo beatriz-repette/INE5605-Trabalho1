@@ -58,3 +58,9 @@ def verificaNome(nome):
         pass
     else:
         raise NomeException
+
+def verificaChip(chip):
+    if chip.isdigit(): #Verificar se o "-" conta como digito
+        pass
+    else:
+        raise ChipException
