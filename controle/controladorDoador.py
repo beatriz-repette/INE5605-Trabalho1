@@ -25,7 +25,7 @@ class ControladorDoador:
 
             for doa in self.__doadores:
                 if doa.cpf == dados_doador["cpf"]:
-                    self.__telaDoador.mensagem_erro_cadastro()
+                    self.__telaDoador.mensagem("Erro ao cadastrar doador, CPF inserido ja cadastrado")
                     raise ErroCadastroException
             doador = Doador(dados_doador["cpf"], dados_doador["nome"], dados_doador["data_nascimento"], dados_doador["endereco"])
             self.__doadores.append(doador)
@@ -52,7 +52,7 @@ class ControladorDoador:
                 if novos_dados_doador["cpf"] != '*':
                     # Verifica se ja existe um cadastro com o novo cpf informado
                     if self.doador_por_cpf(novos_dados_doador['cpf']) is not None:
-                        self.__telaDoador.mensagem_erro_cadastro()
+                        self.__telaDoador.mensagem("Erro ao cadastrar doador, CPF inserido ja cadastrado")
                         raise ErroCadastroException
                     doador.cpf = novos_dados_doador["cpf"]
 
@@ -70,7 +70,7 @@ class ControladorDoador:
             except ErroCadastroException or RetornarException:
                 pass
         else:
-            self.__telaDoador.mensagem_doador_nao_existente()
+            self.__telaDoador.mensagem("Nao existe nenhum cadastro de doador com esse CPF")
 
     def excluir_doador(self):
         cpf_doador = self.__telaDoador.seleciona_doador() #Seleciona retorna o cpf para fazer buscas em listas
@@ -80,7 +80,7 @@ class ControladorDoador:
             self.__doadores.remove(doador)
             self.__telaDoador.mensagem_operacao_concluida()
         else:
-            self.__telaDoador.mensagem_doador_nao_existente()
+            self.__telaDoador.mensagem("Nao existe nenhum cadastro de doador com esse CPF")
 
     @property
     def doadores(self):
@@ -91,10 +91,20 @@ class ControladorDoador:
 
     def listar_doadores(self):
         if self.__doadores == []:
-            self.__telaDoador.mensagem_non_existent()
+            self.__telaDoador.mensagem("Nao existem doadores no sistema.")
         else:
-            for doador in self.__doadores:
-                self.__telaDoador.mostra_doador({"nome": doador.nome, "endereco": doador.endereco, "cpf": doador.cpf, "data_nascimento": doador.data_nascimento})
+            dados_tabela = [
+                [
+                    doador.nome,
+                    doador.endereco,
+                    doador.cpf,
+                    doador.data_nascimento.strftime('%d/%m/%Y')
+                ]
+                for doador in self.__doadores #roda a lista
+            ]
+
+            # Envia os dados para a View
+            self.__telaDoador.mostra_doador(dados_tabela)
 
     def abre_tela(self): #anteriormente funcao se chamava "iniciar"
         lista_opcoes = {1 : self.incluir_doador, 2 : self.alterar_doador, 3 : self.listar_doadores, 4 : self.excluir_doador, 0 : self.finalizar}

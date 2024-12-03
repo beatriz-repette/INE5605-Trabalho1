@@ -30,7 +30,7 @@ class ControladorDoacao():
                     doador_no_sistema = True
 
             if not doador_no_sistema:
-                self.__telaDoacao.mensagem_sem_doador()
+                self.__telaDoacao.mensagem("Doador nao encontrado no sistema")
                 self.__telaDoacao.mensagem_operacao_cancelada()
                 raise ErroRegistroException
 
@@ -54,7 +54,7 @@ class ControladorDoacao():
 
     def listar_doacoes(self):
         if self.__doacoes == []:
-            self.__telaDoacao.mensagem_sem_doacoes()
+            self.__telaDoacao.mensagem("Nao existem doacoes cadastradas no sistema")
         else:
             n = 0
             for d in self.__doacoes:
@@ -103,7 +103,7 @@ class ControladorDoacao():
             if novos_dados_doacao["cpf"] != '*':
                 doador_no_sistema = self.__controladorPrincipal.controladorDoador.doador_por_cpf(novos_dados_doacao['cpf'])
                 if doador_no_sistema is None and novos_dados_doacao["cpf"] != '*':
-                    self.__telaDoacao.mensagem_sem_doador()
+                    self.__telaDoacao.mensagem("Doador nao encontrado no sistema")
                     self.__telaDoacao.mensagem_operacao_cancelada()
                     raise ErroRegistroException
                 doacao.doador = novos_dados_doacao["cpf"]
@@ -127,7 +127,7 @@ class ControladorDoacao():
 
     def relatorio_doacao(self):
         if self.__doacoes == []:
-            self.__telaDoacao.mensagem_sem_doacoes()
+            self.__telaDoacao.mensagem("Nao existem doacoes cadastradas no sistema")
         else:
             periodo = self.__telaDoacao.seleciona_periodo()
             n = 0
