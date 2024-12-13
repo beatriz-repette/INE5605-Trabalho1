@@ -179,12 +179,15 @@ class ControladorAdocao():
                 self.__telaAdocao.mensagem("Nao existem adocoes no periodo selecionado")
     
     def excluir_adocao(self):
-        adocao = self.__telaAdocao.seleciona_adocao(len(self.__adocoes))
-        if adocao != '*':
-            self.__adocoes.remove(self.__adocoes[adocao])
-            self.__telaAdocao.mensagem_operacao_concluida()
-        else:
-            self.__telaAdocao.mensagem_operacao_cancelada()
+        try:
+            adocao = self.__telaAdocao.seleciona_adocao(len(self.__adocoes))
+            if adocao != '*' and adocao != '0':
+                self.__adocoes.remove(self.__adocoes[adocao])
+                self.__telaAdocao.mensagem_operacao_concluida()
+            else:
+                self.__telaAdocao.mensagem_operacao_cancelada()
+        except:
+            pass
                 
     def animal_foi_adotado(self, id):
         for a in self.__adocoes:

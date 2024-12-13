@@ -21,7 +21,7 @@ class TelaAdocao(TelaAbstrata):
             [sg.Radio('Alterar Adocao', "RD1", key=2)],
             [sg.Radio('Listar Adocoes', "RD1", key=3)],
             [sg.Radio('Excluir Adocao', "RD1", key=4)],
-            [sg.Radio('Relatorio de Adocoes', "RD1", key=4)],
+            [sg.Radio('Relatorio de Adocoes', "RD1", key=5)],
             [sg.Button('Confirmar'), sg.Cancel('Cancelar')]
         ]
 
