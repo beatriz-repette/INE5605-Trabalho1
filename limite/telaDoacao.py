@@ -1,156 +1,141 @@
 from limite.telaAbstrata import TelaAbstrata
 from datetime import datetime
-from verificacao import verificaCPF
+from verificacao import verificaCPF, verificaData,verificaChip, verificaNome
 from exception.CPFexception import CPFExecption
 from verificacao import verificaNome
 from exception.erroCadastroException import ErroCadastroException
+from exception.dateException import DateException
+from exception.chipException import ChipException
+from exception.nomeException import NomeException
+import PySimpleGUI as sg
 
 
 class TelaDoacao(TelaAbstrata):
-    def tela_opcoes(self):
-        print("-------- Doacao ----------")
-        print("Escolha a opcao")
-        print("0 - Retornar")
-        print("1 - Registrar Doacao")
-        print('2 - Alterar Doacao')
-        print("3 - Listar Doacoes")
-        print('4 - Excluir Doacao')
-        print('5 - Relatorio de Doacoes')
+    def __init__(self):
+        self.__window = None
+        self.init_components()
 
-        opcao = self.ler_int('Escolha uma opcao: ', [0, 1, 2, 3, 4, 5])
-        return opcao
+    def init_components(self):
+        sg.ChangeLookAndFeel('DarkGreen')
+        layout = [
+            [sg.Text("-------- Doacao ----------", font=("Times",25,"bold"))],
+            [sg.Text('Escolha sua opção:', font=("Times",15))],
+            [sg.Radio('Registrar Doacao', "RD1", key=1)],
+            [sg.Radio('Alterar Doacao', "RD1", key=2)],
+            [sg.Radio('Listar Doacoes', "RD1", key=3)],
+            [sg.Radio('Excluir Doacao', "RD1", key=4)],
+            [sg.Radio('Relatorio de Doacoes', "RD1", key=4)],
+            [sg.Button('Confirmar'), sg.Cancel('Cancelar')]
+        ]
+
+        self.__window = sg.Window('Cadastro de Doação', layout)
+
+    def tela_opcoes(self):
+        self.init_components()
+        button, values = self.__window.read()
+
+        if button in (None, 'Cancelar'):
+            opcao = 0
+
+        else:
+            for val in values:
+                if values[val]:
+                    opcao = val
+
+        self.__window.Close()
+        try:
+            return opcao
+        except UnboundLocalError:
+            return 0
 
     def pega_dados_doacao(self):
-        print("-------- Dados Doacao (Digite 0 para retornar) ----------")
-        cpf = input("CPF: ").replace(".", "").replace("-", "").strip()
+        sg.ChangeLookAndFeel('DarkGreen')
+
+        layout = [
+            [sg.Text("-------- Dados Doacao ----------", font=("Times", 25, "bold"))],
+            [sg.Text("CPF do doador:"), sg.InputText(key = 'cpf')],
+            [sg.Text("Data da doacao:"), sg.Input(enable_events=True, key='data'), sg.CalendarButton("Selecionar Data", target="data", format="%d/%m/%Y")],
+            [sg.Text("Preencha os seguintes campos referentes ao animal?", font=("Times", 15))],
+            [sg.Text("Tipo:")],
+            [sg.Radio("Cachorro", "TIPO_ANIMAL", key="cachorro"), sg.Radio("Gato", "TIPO_ANIMAL", key="gato")],
+            [sg.Text("Tamanho (o tamanho so precisa ser preenchido caso o animal for um cachorro):"), sg.Combo(["P", "M", "G"], key="TAMANHO")],
+            [sg.Text("Numero do chip:"), sg.InputText(key='chip')],
+            [sg.Text("Nome:"), sg.InputText(key='nome')],
+            [sg.Text("Raca:"), sg.InputText(key='raca')],
+            [sg.Button('Confirmar'), sg.Button('Cancelar')]
+        ]
+
+        self.__window = sg.Window('Cadastro de Doação', layout)
+
+        vacinas = []
+
         while True:
-            if cpf == '0':
+            event, values = self.__window.read()
+
+            if event == sg.WINDOW_CLOSED or event == "Cancelar":
+                self.__window.Close()
                 return 0
-            try:
-                verificaCPF(cpf)
-                break
-            except (CPFExecption, ValueError):
-                print("O CPF digitado está incorreto, por favor o digite novamente.")
-                cpf = input("CPF: ")
+            '''
+            #Habilitar campo 'tamanho' so para cachorros
+            if values.get("cachorro"):
+                self.__window['TAMANHO'].update(disabled=False)
+            elif values.get("gato"):
+                self.__window['TAMANHO'].update(disabled=True, value='')
+            '''
+            if event == "Confirmar":
+                try:
+                    cpf = (values['cpf']).replace(".", "").replace("-", "").strip()
+                    data = datetime.strptime(values['data'], '%d/%m/%Y')
+                    tipo_animal = "cachorro" if values["cachorro"] else "gato"
+                    tamanho = values['TAMANHO'] if tipo_animal == 'cachorro' else None
+                    chip = values['chip']
+                    nome = values['nome']
+                    raca = values['raca']
 
-        data = input("Data (formato DD/MM/YYYY): ")
-        while True:
-            if data == '0':
-                return 0
-            try:
-                data = datetime.strptime(data, '%d/%m/%Y')
-                break
-            except: 
-                print('Data invalida inserida.')
-                data = input("Data (formato DD/MM/YYYY): ")
+                    if tipo_animal == 'cachorro':
+                        animal = {
+                            'tipo': tipo_animal,
+                            'tamanho': tamanho,
+                            'chip': chip,
+                            'nome': nome,
+                            'raca': raca,
+                        }
 
-        animal = {}
-        tipo_animal = input('Tipo de animal (Gato/Cachorro): ')
-        while True:
-            if tipo_animal == '0':
-                return 0
-            try:
-                tipo_animal = tipo_animal.lower()
-                if tipo_animal == 'cachorro':
-                    tamanho_animal = input('Tamanho do animal (P/M/G): ')
-                    while True:
-                        if tipo_animal == '0':
-                            return 0
-                        tamanho_animal = tamanho_animal.upper()
-                        try:
-                            if tamanho_animal not in ['P', 'M', 'G']:
-                                raise ValueError
-                            else:
-                                break
-                        except:
-                            print('Tamanho invalido inserido.')
-                            tamanho_animal = input('Tamanho do animal (P/M/G): ')
-                    animal.update({'tamanho': tamanho_animal})
-                    break
-                elif tipo_animal == 'gato':
-                    break
-                else:
-                    raise ValueError
-            except:
-                print('Tipo de animal invalido.')
-                tipo_animal = input('Tipo de animal (Gato/Cachorro): ')
-        animal.update({'tipo': tipo_animal})
+                    else:
+                        animal = {
+                            'tipo': tipo_animal,
+                            'chip': chip,
+                            'nome': nome,
+                            'raca': raca,
+                        }
 
-        chip_animal = input('Numero do chip do animal: ')
-        while True:
-            if chip_animal == '0':
-                return 0
-            try:
-                chip_animal = int(chip_animal)
-                if chip_animal < 0:
-                    raise ValueError
-                break
-            except:
-                print('Valor de chip invalido.')
-                chip_animal = input('Numero do chip do animal: ')
-        animal.update({'chip': chip_animal})
+                    motivo = sg.popup_get_text("Qual o motivo da doação?", "Motivo")
+                    if not motivo:
+                        sg.popup("Motivo da doação não pode ser vazio!")
+                        continue
 
-        # Verificacao de nome
-        nome_animal = input("Nome do animal: ")
-        while True:
-            if nome_animal == '0':
-                return 0
-            try:
-                verificaNome(nome_animal)
-                break
-            except ErroCadastroException:
-                print("Nome invalido, por favor digite novamente.")
-                nome = input("Nome: ")
-        animal.update({'nome': nome_animal})
+                    #Verificacoes
+                    verificaData(data)
+                    verificaCPF(cpf)
+                    verificaChip(chip)
+                    verificaNome(nome)
 
-        raca_animal = input('Raca do animal: ')
-        if raca_animal == '0':
-            return 0
-        #Verificar para ver se raca so tem letras 
-        animal.update({'raca': raca_animal})
+                    self.__window.Close()
+                    return {"data": data, "animal": animal, "cpf": cpf, "motivo": motivo}
 
-        print('Cadastro de Vacinas')
-        vacinas_animal = []
+                except CPFExecption:
+                    sg.popup("O CPF digitado está incorreto, por favor o digite novamente.")
+                except DateException:
+                    sg.popup("A data inserida esta no futuro.\n"
+                             "Por favor, insira uma data valida")
+                except NomeException:
+                    sg.popup("O nome do animal inserido nao eh valido. \nPor favor, use apenas letras e espacos.")
+                except ChipException:
+                    sg.popup("O valor de chip do animal inserido esta incorreto\n"
+                             "Lembre que esse valor deve ser um inteiro positivo.")
+                except (UnboundLocalError, ValueError): #Para caso existam campos nao preenchidos
+                    sg.popup("Lembre-se de preencher todos os campos!")
 
-        while True:
-            print("0- Retornar")
-            print("1- Cadastrar nova vacina")
-            opcao = input()
-            while opcao not in ["1", "0"]:
-                opcao = input("Por favor, escolha uma opcao valida: ")
-            if opcao == '0':
-                break
-            else:
-                print("Qual dessas vacinas voce quer cadastrar?")
-                print("0- Retornar")
-                print("1- Raiva")
-                print("2- Hepatite")
-                print("3- Leptospirose")
-                opcao2 = input('Vacina: ')
-                while opcao2 not in ['1', '2', '3', '0']:
-                    print("Por favor, digite uma opcao valida: ")
-                    opcao2 = input('Vacina: ')
-                if opcao2 == '0':
-                    break
-                else:
-                    data_vacina = input("Data de aplicacao da vacina (DD/MM/YYYY): ")
-                    while True:
-                        try:
-                            data_vacina = datetime.strptime(data_vacina, '%d/%m/%Y')
-                            break
-                        except:
-                            print("Por favor, digite uma data valida")
-                            data_vacina = input("Data de aplicacao da vacina (DD/MM/YYYY): ")
-                    
-            vacinas_animal.append({'data': data_vacina, 'nome': int(opcao2), 'animal': chip_animal})
-        animal.update({'vacinas': vacinas_animal})
-
-        motivo = input("Qual o motivo da doacao? ")
-        if motivo == '0':
-            return 0
-
-        return {"data": data, "animal": animal, "cpf": cpf, "motivo": motivo}
-    
     def pega_dados_alterados_doacao(self):
         print("-------- Alteracao de Doacao (insira 0 para cancelar ou * para avancar) ----------")
         cpf = input("CPF: ").replace(".", "").replace("-", "").strip()

@@ -1,8 +1,8 @@
-from verificacao import verificaCPF, verificaEndereco, verificaNome
+from verificacao import verificaCPF, verificaEndereco, verificaNome, verificaData
 from exception.CPFexception import CPFExecption
 from exception.enderecoException import EnderecoException
 from exception.nomeException import NomeException
-from exception.erroCadastroException import ErroCadastroException
+from exception.dateException import DateException
 from limite.telaAbstrata import TelaAbstrata
 from datetime import datetime
 import PySimpleGUI as sg
@@ -88,6 +88,7 @@ class TelaAdotante(TelaAbstrata):
                     verificaCPF(cpf)
                     verificaNome(nome)
                     verificaEndereco(endereco)
+                    verificaData(data)
 
                     self.__window.Close()
                     return {"nome": nome, "endereco": endereco, "data_nascimento": data, "cpf": cpf,
@@ -95,6 +96,9 @@ class TelaAdotante(TelaAbstrata):
 
                 except CPFExecption:
                     sg.popup("O CPF digitado está incorreto, por favor o digite novamente.")
+                except DateException:
+                    sg.popup("A data inserida esta no futuro.\n"
+                             "Por favor, insira uma data valida")
                 except NomeException:
                     sg.popup("Nome invalido, por favor digite novamente."
                              "\nLembre de inserir seu nome completo.") #Ver como pular a linha dentro do popup!!
@@ -133,15 +137,6 @@ class TelaAdotante(TelaAbstrata):
                     sg.popup("O CPF digitado está incorreto, por favor o digite novamente.")
 
     def mostra_adotante(self, dados_adotante):
-        '''
-        print("------------------")
-        print("NOME DO ADOTANTE:", dados_adotante["nome"])
-        print("CPF DO ADOTANTE:", dados_adotante["cpf"])
-        print("DATA NASCIMENTO:", dados_adotante["data_nascimento"].strftime('%d/%m/%Y'))
-        print("ENDERECO:", dados_adotante["endereco"])
-        print("TIPO DE HABITACAO:", dados_adotante["tipo_habitacao"])
-        print("POSSUI ANIMAL?:", "SIM" if dados_adotante["possui_animal"] else "NAO")
-        '''
 
         layout = [
             [sg.Text("Lista de Adotantes", font=("Times", 25, "bold"))],

@@ -1,6 +1,7 @@
-from verificacao import verificaCPF, verificaNome, verificaEndereco
+from verificacao import verificaCPF, verificaNome, verificaEndereco, verificaData
 from limite.telaAbstrata import TelaAbstrata
 from exception.CPFexception import CPFExecption
+from exception.dateException import DateException
 from exception.erroCadastroException import ErroCadastroException
 from datetime import datetime
 import PySimpleGUI as sg
@@ -79,12 +80,16 @@ class TelaDoador(TelaAbstrata):
                     verificaCPF(cpf)
                     verificaNome(nome)
                     verificaEndereco(endereco)
+                    verificaData(data)
 
                     self.__window.Close()
                     return {"nome": nome, "endereco": endereco, "data_nascimento": data, "cpf": cpf}
 
                 except CPFExecption:
                     sg.popup("O CPF digitado está incorreto, por favor o digite novamente.")
+                except DateException:
+                    sg.popup("A data inserida esta no futuro.\n"
+                             "Por favor, insira uma data valida")
                 except NomeException:
                     sg.popup("Nome invalido, por favor digite novamente."
                              "\nLembre de inserir seu nome completo.") #Ver como pular a linha dentro do popup!!
@@ -165,6 +170,7 @@ class TelaDoador(TelaAbstrata):
 
                     verificaNome(nome)
                     verificaEndereco(endereco)
+                    verificaData(data)
 
                     self.__window.Close()
                     return {"nome": nome, "endereco": endereco, "data_nascimento": data,
@@ -172,7 +178,10 @@ class TelaDoador(TelaAbstrata):
 
                 except NomeException:
                     sg.popup("Nome invalido, por favor digite novamente."
-                             "\nLembre de inserir seu nome completo.") #Ver como pular a linha dentro do popup!!
+                             "\nLembre de inserir seu nome completo.")
+                except DateException:
+                    sg.popup("A data inserida esta no futuro.\n"
+                             "Por favor, insira uma data valida")
                 except EnderecoException:
                     sg.popup("Endereco invalido, por favor digite novamente."
                              "\nLembre de escrever ao menos sua cidade, rua e numero!")

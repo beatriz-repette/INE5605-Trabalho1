@@ -1,7 +1,9 @@
 from exception.CPFexception import CPFExecption
 from exception.nomeException import NomeException
 from exception.enderecoException import EnderecoException
-from exception.erroCadastroException import ErroCadastroException
+from exception.chipException import ChipException
+from exception.dateException import DateException
+from datetime import datetime
 #Classe para armazenar funcoes de verificacao
 
 #Lembrete: o CPF é armazenado no sistema como string sem "." nem "-"
@@ -64,3 +66,8 @@ def verificaChip(chip):
         pass
     else:
         raise ChipException
+
+def verificaData(data):
+    data_atual = datetime.now()
+    if data > data_atual:
+        raise DateException

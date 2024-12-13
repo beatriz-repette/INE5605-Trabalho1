@@ -36,11 +36,13 @@ class ControladorDoacao():
                 raise ErroRegistroException
 
             animal = None
+            '''
             vacinacoes = []
+            
             for v in dados['animal']['vacinas']:
                 vacinacoes.append(self.__controladorPrincipal.controladorVacinacao.incluir_vacinacao(v['data'], v['nome'], v['animal']))
             dados['animal']['vacinas'] = vacinacoes
-
+            '''
             if dados['animal']['tipo'] == 'cachorro':
                 animal = self.__controladorPrincipal.controladorCachorro.incluir_cachorro(dados['animal'])
             elif dados['animal']['tipo'] == 'gato':
