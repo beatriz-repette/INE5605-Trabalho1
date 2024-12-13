@@ -171,11 +171,12 @@ class TelaVacinacao(TelaAbstrata):
             [sg.Text("Insira os dados da vacinacao:", font=("Times",15))],
             [sg.Text("Chip do animal:"), sg.InputText(key = 'chip')],
             [sg.Text("Nome da vacina:"),
-             sg.Radio("Raiva:", 'VACINAS', key = 1, default = True),
-             sg.Radio("Hepatite:", 'VACINAS', key = 2),
-             sg.Radio("Leptospirose:", 'VACINAS', key = 3)],
-            [sg.Input(key = 'data'),
-             sg.CalendarButton("Selecionar Data", target="data", format="%d/%m/%Y")]
+             sg.Radio("Raiva", 'VACINAS', key = 1, default = True),
+             sg.Radio("Hepatite", 'VACINAS', key = 2),
+             sg.Radio("Leptospirose", 'VACINAS', key = 3)],
+            [sg.Text("Data de aplicacao:"),
+             sg.Input(enable_events = True, key = 'data'),
+             sg.CalendarButton("Selecionar Data", target="data", format="%d/%m/%Y")],
             [sg.Button('Confirmar'), sg.Cancel('Cancelar')]
         ]
 
@@ -192,31 +193,36 @@ class TelaVacinacao(TelaAbstrata):
                 chip = values['chip']
                 data = values['data']
 
-            try:
-                if chip == '':
-                    chip = '*'
-                else:
-                    try:
-                        chip = int(chip)
-                        if chip < 0:
+                try:
+                    if chip == '':
+                        chip = '*'
+                    else:
+                        try:
+                            chip = int(chip)
+                            if chip < 0:
+                                raise ChipException
+                        except:
                             raise ChipException
-                    except:
-                        raise ChipException
-                
-                vacina = 0
-                for val in values:
-                    if values[val]:
-                        vacina = val
+                    
+                    vacina = 0
+                    opcoes = {1: 'RAIVA', 2: 'HEPATITE', 3: 'LEPTOSPIROSE'}
+                    for val in values:
+                        if values[val] and val in [1, 2, 3]:
+                            vacina = opcoes[val]
 
-                if data != '':
-                    try:
-                        data = datetime.strptime(data, '%d/%m/%Y')
-                    except:
-                        raise DateException
-            except ChipException:
-                sg.popup('Chip invalido, por favor digite novamente.')
-            except DateException:
-                sg.popup('Por favor, insira uma data de vacina válida.')
+                    if data != '':
+                        try:
+                            data = datetime.strptime(data, '%d/%m/%Y')
+                        except:
+                            raise DateException
+                    
+                    window.Close()
+                    return {'chip': chip, 'vacina': vacina, 'data': data}
+
+                except ChipException:
+                    sg.popup('Chip invalido, por favor digite novamente.')
+                except DateException:
+                    sg.popup('Por favor, insira uma data de vacina válida.')
     
     def mostrar_mensagem(self, mensagem):
         if isinstance(mensagem, str):

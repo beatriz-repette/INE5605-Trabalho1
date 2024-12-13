@@ -217,7 +217,7 @@ class TelaGato(TelaAbstrata):
                         except:
                             raise DateException
 
-                    if (data_vacina_rai != '' or data_vacina_hep != '' or data_vacina_lep != ''):
+                    if (visivel1 or visivel2 or visivel3):
                         vacinas_animal.append({'data': data_vacina_rai, 'nome': 1, 'animal': chip})
                         vacinas_animal.append({'data': data_vacina_hep, 'nome': 2, 'animal': chip})
                         vacinas_animal.append({'data': data_vacina_lep, 'nome': 3, 'animal': chip})
