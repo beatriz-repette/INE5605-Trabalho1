@@ -21,6 +21,9 @@ class ControladorCachorro():
         return 'Cachorro nao se encontra no sistema.'
 
     def incluir_cachorro(self, dados):
+        for cachorro in self.cachorros:
+            if cachorro.num_chip == dados['chip']:
+                return None
         dog = Cachorro(dados['chip'], dados['nome'], dados['raca'], dados['tamanho'], dados['vacinas'])
         self.__cachorroDAO.add(dog)
         return dog
