@@ -5,6 +5,8 @@ import PySimpleGUI as sg
 class TelaAnimal(TelaAbstrata):
     def tela_opcoes(self):
         layout = [
+        [sg.Text("-------- ONG de Animais ---------", font=("Times",25,"bold"))],
+        [sg.Text('Escolha sua opção:', font=("Times",15))],
         [sg.Radio('Gatos', "RADIO1", key = 1, default = True, size=(10
         ,1))],
         [sg.Radio('Cachorros', "RADIO1", key = 2)],

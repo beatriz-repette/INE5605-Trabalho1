@@ -5,6 +5,7 @@ from entidade.animal import Animal
 from limite.telaDoacao import TelaDoacao
 from exception.erroRegistroException import ErroRegistroException
 from exception.retornarException import RetornarException
+from exception.chipException import ChipException
 
 
 class ControladorDoacao():
@@ -45,10 +46,16 @@ class ControladorDoacao():
             elif dados['animal']['tipo'] == 'gato':
                 animal = self.__controladorPrincipal.controladorGato.incluir_gato(dados['animal'])
 
+            if animal is None:
+                raise ChipException
+
+            # MUDAR ANIMAL PARA UM OBJ ANIMAL E DOADOR
             self.__doacoes.append(Doacao(dados['data'], dados['animal']['chip'], dados['cpf'], dados['motivo']))
 
             self.__telaDoacao.mensagem_operacao_concluida()
 
+        except ChipException:
+            self.__telaDoacao.mensagem('Ja existe um animal com esse chip no sistema.')
         except:
             pass
 
