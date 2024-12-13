@@ -12,7 +12,7 @@ class ControladorVacinacao():
 
     @property
     def vacinacoes(self):
-        return self.__vacinacao_DAO.get_all()
+        return list(self.__vacinacao_DAO.get_all())
     
     def vacinacao_por_chip_vacina_data(self, chip, vacina, data):
         key = 0
@@ -23,7 +23,7 @@ class ControladorVacinacao():
         return None
     
     def listar_vacinacoes(self):
-        if self.vacinacoes == {}.values():
+        if self.vacinacoes == []:
             self.__telaVacinacao.mostrar_mensagem('Nao existem vacinacoes no sistema.')
         else:
             dados = []
@@ -45,7 +45,6 @@ class ControladorVacinacao():
     
     def incluir_vacinacao(self, data, vacina, chip):
         vacinacao = Vacinacao(data, Vacina(vacina), chip)
-        # ALTERAR
         key = len(self.vacinacoes)
         self.__vacinacao_DAO.add(vacinacao, key)
         return vacinacao
@@ -60,8 +59,10 @@ class ControladorVacinacao():
                 animal = self.__controladorPrincipal.animal_por_chip(chip)
                 if animal != 'Animal nao se encontra no sistema.':
                     dados = self.__telaVacinacao.pegar_vacina(chip)
-                    for v in dados:
-                        animal.add_vacina(self.incluir_vacinacao(v['data'],v['nome'], v['animal']))
+                    if dados == 0:
+                        self.__telaVacinacao.mensagem_operacao_cancelada()
+                    else:
+                        animal.add_vacina(self.incluir_vacinacao(dados['data'],dados['nome'], dados['animal']))
                         self.__telaVacinacao.mensagem_operacao_concluida()
                 else:
                     raise ValueError
@@ -73,22 +74,25 @@ class ControladorVacinacao():
             self.__telaVacinacao.mensagem_operacao_cancelada()
     
     def excluir_vacinacao(self, vac = None):
-        if self.vacinacoes == {}.values():
-            self.__telaVacinacao.mostrar_mensagem('Nao existem vacinacoes no sistema.')
-        else:
-            vac = self.__telaVacinacao.selecionar_vacinacao()
-            if vac != 0:
-                vac = self.vacinacao_por_chip_vacina_data(vac['chip'], vac['vacina'], vac['data'])
-                if vac is not None:
-                    self.__vacinacao_DAO.remove(vac['key'])
-                    animal = self.__controladorPrincipal.animal_por_chip(vac['vac'].animal_chip)
-                    if animal != 'Animal não se encontra no sistema.':
-                        animal.excluir_vacina(vac['vac'])
-                    self.__telaVacinacao.mensagem_operacao_concluida()
-                else:
-                    self.__telaVacinacao.mensagem('Erro ao excluir vacinacao.')
+        try:
+            if self.vacinacoes == []:
+                self.__telaVacinacao.mostrar_mensagem('Nao existem vacinacoes no sistema.')
             else:
-                self.__telaVacinacao.mensagem_operacao_cancelada()
+                vac = self.__telaVacinacao.selecionar_vacinacao()
+                if vac != 0:
+                    vac = self.vacinacao_por_chip_vacina_data(vac['chip'], vac['vacina'], vac['data'])
+                    if vac is not None:
+                        self.__vacinacao_DAO.remove(vac['key'])
+                        animal = self.__controladorPrincipal.animal_por_chip(vac['vac'].animal_chip)
+                        if animal != 'Animal não se encontra no sistema.':
+                            animal.excluir_vacina(vac['vac'])
+                        self.__telaVacinacao.mensagem_operacao_concluida()
+                    else:
+                        self.__telaVacinacao.mensagem('Erro ao excluir vacinacao.')
+                else:
+                    self.__telaVacinacao.mensagem_operacao_cancelada()
+        except:
+            pass
 
     def finalizar(self):
         self.__controladorPrincipal.abre_tela()

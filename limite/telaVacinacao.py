@@ -56,27 +56,30 @@ class TelaVacinacao(TelaAbstrata):
     
     def pegar_vacina(self, chip):
         sg.ChangeLookAndFeel('DarkGreen')
-        visivel1 = False
+        visivel1 = True
         visivel2 = False
         visivel3 = False
 
-        vac_raiva = [[sg.Input(key = 'data-raiva'),
+        vac_raiva = [[sg.Text('Data de aplicacao:'),
+                      sg.Input(key = 'data-raiva'),
                       sg.CalendarButton("Selecionar Data", target="data-raiva", format="%d/%m/%Y")]]
         
-        vac_hep = [[sg.Input(key = 'data-hepatite'),
+        vac_hep = [[sg.Text('Data de aplicacao:'),
+                    sg.Input(key = 'data-hepatite'),
                     sg.CalendarButton("Selecionar Data", target="data-hepatite", format="%d/%m/%Y")]]
         
-        vac_lepto = [[sg.Input(key = 'data-lepto'),
+        vac_lepto = [[sg.Text('Data de aplicacao:'),
+                      sg.Input(key = 'data-lepto'),
                       sg.CalendarButton("Selecionar Data", target="data-lepto", format="%d/%m/%Y")]]
 
         layout = [
             [sg.Text("-------- Dados Vacina ----------", font=("Times", 25, "bold"))],
-            [sg.Text("Insira os dados da(s) vacina(s):", font=("Times",15))],
-            [sg.Checkbox("Vacina da raiva:", enable_events = True, key = 'raiva'),
-             self.collapse(vac_raiva, 'sec-raiva', False)],
-            [sg.Checkbox("Vacina da hepatite:", enable_events = True, key = 'hepatite'),
+            [sg.Text("Insira os dados da vacina:", font=("Times",15))],
+            [sg.Radio("Vacina da raiva", 'VACINAS', default = True, enable_events = True, key = 'raiva'),
+             self.collapse(vac_raiva, 'sec-raiva', True)],
+            [sg.Radio("Vacina da hepatite", 'VACINAS', enable_events = True, key = 'hepatite'),
              self.collapse(vac_hep, 'sec-hepatite', False)],
-            [sg.Checkbox("Vacina da leptospirose:", enable_events = True, key = 'lepto'),
+            [sg.Radio("Vacina da leptospirose", 'VACINAS', enable_events = True, key = 'lepto'),
              self.collapse(vac_lepto, 'sec-lepto', False)],
             [sg.Button('Confirmar'), sg.Cancel('Cancelar')]
         ]
@@ -91,49 +94,55 @@ class TelaVacinacao(TelaAbstrata):
                 return 0
 
             if event == 'raiva':
-                visivel1 = not visivel1
+                visivel1 = True
+                visivel2 = False
+                visivel3 = False
                 window['sec-raiva'].update(visible = visivel1)
+                window['sec-hepatite'].update(visible = visivel2)
+                window['sec-lepto'].update(visible = visivel3)
 
             if event == 'hepatite':
-                visivel2 = not visivel2
+                visivel1 = False
+                visivel2 = True
+                visivel3 = False
+                window['sec-raiva'].update(visible = visivel1)
                 window['sec-hepatite'].update(visible = visivel2)
+                window['sec-lepto'].update(visible = visivel3)
 
             if event == 'lepto':
-                visivel3 = not visivel3
+                visivel1 = False
+                visivel2 = False
+                visivel3 = True
+                window['sec-raiva'].update(visible = visivel1)
+                window['sec-hepatite'].update(visible = visivel2)
                 window['sec-lepto'].update(visible = visivel3)
 
             if event == "Confirmar":
                 try:
-                    vacinas_animal = []
-                    data_vacina_rai = values['data-raiva']
-                    if data_vacina_rai != '':
+                    data = ''
+                    if visivel1:
+                        data = values['data-raiva']
+                        vac = 1
+                    elif visivel2:
+                        data = values['data-hepatite']
+                        vac = 2
+                    elif visivel3:
+                        data = values['data-lepto']
+                        vac = 3
+
+                    if data != '':
                         try:
-                            data_vacina_rai = datetime.strptime(data_vacina_rai, '%d/%m/%Y')
+                            data = datetime.strptime(data, '%d/%m/%Y')
                         except:
                             raise DateException
 
-                    data_vacina_hep = values['data-hepatite']
-                    if data_vacina_hep != '':
-                        try:
-                            data_vacina_hep = datetime.strptime(data_vacina_hep, '%d/%m/%Y')
-                        except:
-                            raise DateException
+                    if (visivel1 or visivel2 or visivel3):
+                        vacina = {'data': data, 'nome': vac, 'animal': chip}
 
-                    data_vacina_lep = values['data-lepto']
-                    if data_vacina_lep != '':
-                        try:
-                            data_vacina_lep = datetime.strptime(data_vacina_lep, '%d/%m/%Y')
-                        except:
-                            raise DateException
-
-                    if (data_vacina_rai != '' or data_vacina_hep != '' or data_vacina_lep != ''):
-                        vacinas_animal.append({'data': data_vacina_rai, 'nome': 1, 'animal': chip})
-                        vacinas_animal.append({'data': data_vacina_hep, 'nome': 2, 'animal': chip})
-                        vacinas_animal.append({'data': data_vacina_lep, 'nome': 3, 'animal': chip})
                     else:
-                        vacinas_animal = '*'
+                        vacina = '*'
                     window.close()
-                    return vacinas_animal
+                    return vacina
                 
                 except ErroCadastroException:
                     sg.popup("Nome invalido, por favor digite novamente.")
