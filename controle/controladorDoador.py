@@ -2,16 +2,17 @@ from limite.telaDoador import TelaDoador
 from entidade.doador import Doador
 from exception.retornarException import RetornarException
 from exception.erroCadastroException import ErroCadastroException
+from daos.daoDoador import DoadorDAO
 
 
 class ControladorDoador:
     def __init__(self, controladorPrincipal):
-        self.__doadores = []
+        self.__doadoresDAO = DoadorDAO()
         self.__telaDoador = TelaDoador()
         self.__controladorPrincipal = controladorPrincipal
 
     def doador_por_cpf(self, cpf):
-        for doador in self.__doadores:
+        for doador in self.__doadoresDAO.get_all():
             if doador.cpf == cpf:
                 return doador
         return None
@@ -23,12 +24,12 @@ class ControladorDoador:
                 self.__telaDoador.mensagem_operacao_cancelada()
                 raise RetornarException
 
-            for doa in self.__doadores:
+            for doa in self.__doadoresDAO.get_all():
                 if doa.cpf == dados_doador["cpf"]:
                     self.__telaDoador.mensagem("Erro ao cadastrar doador, CPF inserido ja cadastrado")
                     raise ErroCadastroException
             doador = Doador(dados_doador["cpf"], dados_doador["nome"], dados_doador["data_nascimento"], dados_doador["endereco"])
-            self.__doadores.append(doador)
+            self.__doadoresDAO.add(dados_doador["cpf"], doador)
             self.__telaDoador.mensagem_operacao_concluida()
         except:
             pass
@@ -65,6 +66,7 @@ class ControladorDoador:
                 if novos_dados_doador["endereco"] != '*':
                     doador.endereco = novos_dados_doador["endereco"]
 
+                self.__doadoresDAO.update(doador.cpf, doador)
                 self.__telaDoador.mensagem_operacao_concluida()
 
             except ErroCadastroException or RetornarException:
@@ -77,20 +79,20 @@ class ControladorDoador:
         doador = self.doador_por_cpf(cpf_doador)
 
         if doador is not None:
-            self.__doadores.remove(doador)
+            self.__doadoresDAO.remove(cpf_doador)
             self.__telaDoador.mensagem_operacao_concluida()
         else:
             self.__telaDoador.mensagem("Nao existe nenhum cadastro de doador com esse CPF")
 
     @property
     def doadores(self):
-        return self.__doadores
+        return self.__doadoresDAO.get_all()
 
     def finalizar(self):
         self.__controladorPrincipal.abre_tela()
 
     def listar_doadores(self):
-        if self.__doadores == []:
+        if self.doadores == []:
             self.__telaDoador.mensagem("Nao existem doadores no sistema.")
         else:
             dados_tabela = [
@@ -100,7 +102,7 @@ class ControladorDoador:
                     doador.cpf,
                     doador.data_nascimento.strftime('%d/%m/%Y')
                 ]
-                for doador in self.__doadores #roda a lista
+                for doador in self.__doadoresDAO.get_all() #roda a lista
             ]
 
             # Envia os dados para a View

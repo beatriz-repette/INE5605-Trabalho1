@@ -3,15 +3,20 @@ from entidade.adotante import Adotante
 from entidade.habitacao import Habitacao
 from exception.retornarException import RetornarException
 from exception.erroCadastroException import ErroCadastroException
+from daos.daoAdotante import AdotanteDAO
 
 class ControladorAdotante:
     def __init__(self, controladorPrincipal):
-        self.__adotantes = []
+        self.__adotantesDAO = AdotanteDAO()
         self.__telaAdotante = TelaAdotante()
         self.__controladorPrincipal = controladorPrincipal
 
+    @property
+    def adotantes(self):
+        return self.__adotantesDAO.get_all()
+
     def adotante_por_cpf(self, cpf):
-        for adotante in self.__adotantes:
+        for adotante in self.__adotantesDAO.get_all():
             if adotante.cpf == cpf:
                 return adotante
         return None
@@ -22,16 +27,16 @@ class ControladorAdotante:
             if dados_adotante == 0:
                 self.__telaAdotante.mensagem_operacao_cancelada()
                 raise RetornarException
-            for doa in self.__adotantes:
+            for doa in self.adotantes:
                 if doa.cpf == dados_adotante["cpf"]:
                     self.__telaAdotante.mensagem("Erro ao cadastrar adotante, CPF inserido ja cadastrado.")
                     raise ErroCadastroException
             adotante = Adotante(dados_adotante["cpf"], dados_adotante["nome"], dados_adotante["data_nascimento"],
                                 dados_adotante["endereco"], Habitacao(dados_adotante["tipo_habitacao"]), dados_adotante["possui_animal"])
-            self.__adotantes.append(adotante)
+            self.__adotantesDAO.add(dados_adotante["cpf"], adotante)
 
             self.__telaAdotante.mensagem_operacao_concluida()
-        except RetornarException or ErroCadastroException or KeyError:
+        except (RetornarException, ErroCadastroException, KeyError):
             pass
 
     def alterar_adotante(self):
@@ -73,6 +78,7 @@ class ControladorAdotante:
                 if novos_dados_adotante["possui_animal"] != '*':
                     adotante.possui_animal = novos_dados_adotante['possui_animal']
 
+                self.__adotantesDAO.update(adotante.cpf, adotante)
                 self.__telaAdotante.mensagem_operacao_concluida()
 
             except ErroCadastroException or RetornarException:
@@ -81,7 +87,7 @@ class ControladorAdotante:
             self.__telaAdotante.mensagem("Nao existe nenhum cadastro de adotante com esse CPF.")
 
     def listar_adotantes(self):
-        if self.__adotantes == []:
+        if self.adotantes == []:
             self.__telaAdotante.mensagem("Nao existem adotantes no sistema.")
         else:
             dados_tabela = [
@@ -93,7 +99,7 @@ class ControladorAdotante:
                     adotante.tipo_habitacao._name_.replace('_', ' '),
                     "Sim" if adotante.possui_animal else "Não"
                 ]
-                for adotante in self.__adotantes
+                for adotante in self.__adotantesDAO.get_all()
             ]
 
             # Envia os dados para a View
@@ -104,14 +110,10 @@ class ControladorAdotante:
         adotante = self.adotante_por_cpf(cpf_adotante)
 
         if adotante is not None:
-            self.__adotantes.remove(adotante)
+            self.__adotantesDAO.remove(cpf_adotante)
             self.__telaAdotante.mensagem_operacao_concluida()
         else:
             self.__telaAdotante.mensagem("Nao existe nenhum cadastro de adotante com esse CPF.")
-
-    @property
-    def adotantes(self):
-        return self.__adotantes
 
     def finalizar(self):
         self.__controladorPrincipal.abre_tela()
