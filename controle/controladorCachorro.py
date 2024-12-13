@@ -12,7 +12,7 @@ class ControladorCachorro():
 
     @property
     def cachorros(self):
-        return self.__cachorroDAO.get_all
+        return self.__cachorroDAO.get_all()
     
     def cachorro_por_chip(self, id):
         for cachorro in self.cachorros:
