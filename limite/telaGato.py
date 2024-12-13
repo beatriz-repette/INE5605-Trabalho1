@@ -2,7 +2,10 @@ from limite.telaAbstrata import TelaAbstrata
 from datetime import datetime
 from verificacao import verificaNome
 from exception.erroCadastroException import ErroCadastroException
+from exception.chipException import ChipException
+from exception.dateException import DateException
 import PySimpleGUI as sg
+
 
 class TelaGato(TelaAbstrata):
     def tela_opcoes(self):
@@ -32,15 +35,27 @@ class TelaGato(TelaAbstrata):
         visivel2 = False
         visivel3 = False
 
+        vac_raiva = [[sg.Input(key = 'data-raiva'),
+                      sg.CalendarButton("Selecionar Data", target="data-raiva", format="%d/%m/%Y")]]
+        
+        vac_hep = [[sg.Input(key = 'data-hepatite'),
+                    sg.CalendarButton("Selecionar Data", target="data-hepatite", format="%d/%m/%Y")]]
+        
+        vac_lepto = [[sg.Input(key = 'data-lepto'),
+                      sg.CalendarButton("Selecionar Data", target="data-lepto", format="%d/%m/%Y")]]
+
         layout = [
             [sg.Text("-------- Dados Gato ----------", font=("Times", 25, "bold"))],
             [sg.Text("Insira os dados do gato:", font=("Times",15))],
             [sg.Text("Nome do gato:"), sg.InputText(key = 'nome')],
             [sg.Text("Chip do gato:"), sg.InputText(key = 'chip')],
             [sg.Text("Raca do gato:"), sg.InputText(key = 'raca')],
-            [sg.Checkbox("Vacina da raiva:", enable_events = True, key = 'raiva'), sg.Input(key = 'data-raiva', visible = False), sg.CalendarButton("Selecionar Data", target="data-raiva", format="%d/%m/%Y", visible = False, key = 'slc_rai')],
-            [sg.Checkbox("Vacina da hepatite:", enable_events = True, key = 'hepatite'), sg.Input(key = 'data-hepatite', visible = False), sg.CalendarButton("Selecionar Data", target="data-hepatite", format="%d/%m/%Y", visible = False, key = 'slc_hep')],
-            [sg.Checkbox("Vacina da leptospirose:", enable_events = True, key = 'lepto'), sg.Input(key = 'data-lepto', visible = False), sg.CalendarButton("Selecionar Data", target="data-lepto", format="%d/%m/%Y", visible = False, key = 'slc_lep')],
+            [sg.Checkbox("Vacina da raiva:", enable_events = True, key = 'raiva'),
+             self.collapse(vac_raiva, 'sec-raiva', False)],
+            [sg.Checkbox("Vacina da hepatite:", enable_events = True, key = 'hepatite'),
+             self.collapse(vac_hep, 'sec-hepatite', False)],
+            [sg.Checkbox("Vacina da leptospirose:", enable_events = True, key = 'lepto'),
+             self.collapse(vac_lepto, 'sec-lepto', False)],
             [sg.Button('Confirmar'), sg.Cancel('Cancelar')]
         ]
 
@@ -53,153 +68,170 @@ class TelaGato(TelaAbstrata):
                 window.Close()
                 return 0
 
-
-            if event == "Confirmar":
-                cpf = (values['cpf']).replace(".", "").replace("-", "").strip()
-                nome = values['nome']
-                endereco = values['endereco']
-                possui_animal = values["possui_animal"]
-
-                #Determinar tipo de habitacao
-                for val in range(1, 5):
-                    if values[val]:
-                        tipo_habitacao = val
-
             if event == 'raiva':
                 visivel1 = not visivel1
-                values['data-raiva'].update(visible = visivel1)
+                window['sec-raiva'].update(visible = visivel1)
 
             if event == 'hepatite':
                 visivel2 = not visivel2
-                values['data-hepatite'].update(visible = visivel2)
-                
-        
-            gato = {}
+                window['sec-hepatite'].update(visible = visivel2)
 
-            # Verificacao de nome
-            nome = input("Nome do gato: ")
-            while True:
-                if nome == '0':
-                    return 0
-                elif nome == '*':
-                    break
+            if event == 'lepto':
+                visivel3 = not visivel3
+                window['sec-lepto'].update(visible = visivel3)
+
+            if event == "Confirmar":
+                nome = values['nome']
+                chip = values['chip']
+                raca = values['raca']
+
+                gato = {}
                 try:
-                    verificaNome(nome)
-                    break
-                except ErroCadastroException:
-                    print("Nome invalido, por favor digite novamente.")
-                    nome = input("Nome: ")
-            gato.update({'nome': nome})
-
-            while True:
-                try:
-                    chip = input('Chip do gato: ')
-                    if chip == '*':
-                        break
-                    chip = int(chip)
-                    if chip < 0:
-                        raise ValueError
-                    break
-
-                except ValueError:
-                    print('Por favor, insira um chip valido.')
-                    chip = input('Chip do gato: ')
-            gato.update({'chip': chip})
-
-            raca = input('Raca do gato: ')
-            if raca == '0':
-                return 0
-            gato.update({'raca': raca})
-
-            vacinas_animal = []
-            while True:
-                print("0 - Encerrar")
-                print("1- Cadastrar nova vacina")
-                print("* - Nao alterar vacinas")
-
-                opcao = input('Opcao: ')
-                while opcao not in ["1", "0", '*']:
-                    opcao = input("Por favor, escolha uma opcao valida: ")
-                if opcao == '0':
-                    break
-                elif opcao == '*':
-                    vacinas_animal = '*'
-                    break
-                else:
-                    print("Qual dessas vacinas voce quer cadastrar?")
-                    print("0- Retornar")
-                    print("1- Raiva")
-                    print("2- Hepatite")
-                    print("3- Leptospirose")
-
-                    opcao2 = input('Vacina: ')
-                    while opcao2 not in ['1', '2', '3', '0']:
-                        print("Por favor, digite uma opcao valida: ")
-                        opcao2 = input('Vacina: ')
-                    if opcao2 == '0':
-                        break
+                    # Verificacao de nome
+                    if nome == '':
+                        nome = '*'
                     else:
-                        data_vacina = input("Data de aplicacao da vacina (DD/MM/YYYY): ")
-                        while True:
-                            try:
-                                data_vacina = datetime.strptime(data_vacina, '%d/%m/%Y')
-                                break
-                            except:
-                                print("Por favor, digite uma data valida")
-                                data_vacina = input("Data de aplicacao da vacina (DD/MM/YYYY): ")
-                        
-                vacinas_animal.append({'data': data_vacina, 'nome': int(opcao2), 'animal': chip})
-            gato.update({'vacinas': vacinas_animal})
-            window.close()
-            return gato
+                        verificaNome(nome)
+                    gato.update({'nome': nome})
 
-    def pegar_vacina(self):
-        print('-------------- Cadastro de Vacinas ---------------')
-        vacinas_animal = []
+                    if chip == '':
+                        chip = '*'
+                    else:
+                        chip = int(chip)
+                        if chip < 0:
+                            raise ChipException
+                    gato.update({'chip': chip})
 
-        while True:
-            try:
-                chip_animal = input("Chip do animal: ")
-                chip_animal = int(chip_animal)
-                if chip_animal < 0:
-                    raise ValueError
-                break
-            except:
-                print('por favor, insira um chip valido.')
-                chip_animal = input("Chip do animal: ")
+                    if raca == '':
+                        raca = '*'
+                    gato.update({'raca': raca})
 
-        while True:
-            print("0- Retornar")
-            print("1- Cadastrar nova vacina")
-            opcao = input()
-            while opcao not in ["1", "0"]:
-                opcao = input("Por favor, escolha uma opcao valida: ")
-            if opcao == '0':
-                break
-            else:
-                print("Qual dessas vacinas voce quer cadastrar?")
-                print("0- Retornar")
-                print("1- Raiva")
-                print("2- Hepatite")
-                print("3- Leptospirose")
-                opcao2 = input('Vacina: ')
-                while opcao2 not in ['1', '2', '3', '0']:
-                    print("Por favor, digite uma opcao valida: ")
-                    opcao2 = input('Vacina: ')
-                if opcao2 == '0':
-                    break
-                else:
-                    data_vacina = input("Data de aplicacao da vacina (DD/MM/YYYY): ")
-                    while True:
+                    vacinas_animal = []
+                    data_vacina_rai = values['data-raiva']
+                    if data_vacina_rai != '':
                         try:
-                            data_vacina = datetime.strptime(data_vacina, '%d/%m/%Y')
-                            break
+                            data_vacina_rai = datetime.strptime(data_vacina_rai, '%d/%m/%Y')
                         except:
-                            print("Por favor, digite uma data valida")
-                            data_vacina = input("Data de aplicacao da vacina (DD/MM/YYYY): ")
-                    
-            vacinas_animal.append({'data': data_vacina, 'nome': int(opcao2), 'animal': chip_animal})
-        return vacinas_animal
+                            raise DateException
+
+                    data_vacina_hep = values['data-hepatite']
+                    if data_vacina_hep != '':
+                        try:
+                            data_vacina_hep = datetime.strptime(data_vacina_hep, '%d/%m/%Y')
+                        except:
+                            raise DateException
+
+                    data_vacina_lep = values['data-lepto']
+                    if data_vacina_lep != '':
+                        try:
+                            data_vacina_lep = datetime.strptime(data_vacina_lep, '%d/%m/%Y')
+                        except:
+                            raise DateException
+
+                    if (data_vacina_rai != '' or data_vacina_hep != '' or data_vacina_lep != ''):
+                        vacinas_animal.append({'data': data_vacina_rai, 'nome': 1, 'animal': chip})
+                        vacinas_animal.append({'data': data_vacina_hep, 'nome': 2, 'animal': chip})
+                        vacinas_animal.append({'data': data_vacina_lep, 'nome': 3, 'animal': chip})
+                    else:
+                        vacinas_animal = '*'
+                    gato.update({'vacinas': vacinas_animal})
+                    window.close()
+                    return gato
+                
+                except ErroCadastroException:
+                    sg.popup("Nome invalido, por favor digite novamente.")
+                except ChipException:
+                    sg.popup('Chip invalido, por favor digite novamente.')
+                except DateException:
+                    sg.popup('Por favor, insira uma data de vacina válida.')
+
+    def pegar_vacina(self, chip):
+        sg.ChangeLookAndFeel('DarkGreen')
+        visivel1 = False
+        visivel2 = False
+        visivel3 = False
+
+        vac_raiva = [[sg.Input(key = 'data-raiva'),
+                      sg.CalendarButton("Selecionar Data", target="data-raiva", format="%d/%m/%Y")]]
+        
+        vac_hep = [[sg.Input(key = 'data-hepatite'),
+                    sg.CalendarButton("Selecionar Data", target="data-hepatite", format="%d/%m/%Y")]]
+        
+        vac_lepto = [[sg.Input(key = 'data-lepto'),
+                      sg.CalendarButton("Selecionar Data", target="data-lepto", format="%d/%m/%Y")]]
+
+        layout = [
+            [sg.Text("-------- Dados Vacina ----------", font=("Times", 25, "bold"))],
+            [sg.Text("Insira os dados da(s) vacina(s):", font=("Times",15))],
+            [sg.Checkbox("Vacina da raiva:", enable_events = True, key = 'raiva'),
+             self.collapse(vac_raiva, 'sec-raiva', False)],
+            [sg.Checkbox("Vacina da hepatite:", enable_events = True, key = 'hepatite'),
+             self.collapse(vac_hep, 'sec-hepatite', False)],
+            [sg.Checkbox("Vacina da leptospirose:", enable_events = True, key = 'lepto'),
+             self.collapse(vac_lepto, 'sec-lepto', False)],
+            [sg.Button('Confirmar'), sg.Cancel('Cancelar')]
+        ]
+
+        window = sg.Window('Menu').Layout(layout)
+
+        while True:
+            event, values = window.Read()
+
+            if event == sg.WINDOW_CLOSED or event == "Cancelar":
+                window.Close()
+                return 0
+
+            if event == 'raiva':
+                visivel1 = not visivel1
+                window['sec-raiva'].update(visible = visivel1)
+
+            if event == 'hepatite':
+                visivel2 = not visivel2
+                window['sec-hepatite'].update(visible = visivel2)
+
+            if event == 'lepto':
+                visivel3 = not visivel3
+                window['sec-lepto'].update(visible = visivel3)
+
+            if event == "Confirmar":
+                try:
+                    vacinas_animal = []
+                    data_vacina_rai = values['data-raiva']
+                    if data_vacina_rai != '':
+                        try:
+                            data_vacina_rai = datetime.strptime(data_vacina_rai, '%d/%m/%Y')
+                        except:
+                            raise DateException
+
+                    data_vacina_hep = values['data-hepatite']
+                    if data_vacina_hep != '':
+                        try:
+                            data_vacina_hep = datetime.strptime(data_vacina_hep, '%d/%m/%Y')
+                        except:
+                            raise DateException
+
+                    data_vacina_lep = values['data-lepto']
+                    if data_vacina_lep != '':
+                        try:
+                            data_vacina_lep = datetime.strptime(data_vacina_lep, '%d/%m/%Y')
+                        except:
+                            raise DateException
+
+                    if (data_vacina_rai != '' or data_vacina_hep != '' or data_vacina_lep != ''):
+                        vacinas_animal.append({'data': data_vacina_rai, 'nome': 1, 'animal': chip})
+                        vacinas_animal.append({'data': data_vacina_hep, 'nome': 2, 'animal': chip})
+                        vacinas_animal.append({'data': data_vacina_lep, 'nome': 3, 'animal': chip})
+                    else:
+                        vacinas_animal = '*'
+                    window.close()
+                    return vacinas_animal
+                
+                except ErroCadastroException:
+                    sg.popup("Nome invalido, por favor digite novamente.")
+                except ChipException:
+                    sg.popup('Chip invalido, por favor digite novamente.')
+                except DateException:
+                    sg.popup('Por favor, insira uma data de vacina válida.')
 
     def mostrar_gato(self, dados):
         '''
@@ -222,7 +254,7 @@ class TelaGato(TelaAbstrata):
         ]
 
         # Criar janela para exibir a tabela
-        window = sg.Window("Adotantes", layout)
+        window = sg.Window("Gatos", layout)
 
         while True:
             event, values = window.read()
@@ -262,7 +294,7 @@ class TelaGato(TelaAbstrata):
         sg.popup("Nao existem gatos cadastrados no sistema.", title="Cancelado")
 
     def mensagem_erro_vacina(self):
-        print('Erro ao adicionar vacinas.')
+        sg.popup('Erro ao adicionar vacinas.')
 
     def mostrar_mensagem(self, mensagem):
         sg.popup(mensagem)
