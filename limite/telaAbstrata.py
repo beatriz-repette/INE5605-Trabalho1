@@ -12,7 +12,7 @@ class TelaAbstrata(ABC):
                     raise ValueError
                 return inteiro
             except ValueError:
-                print('Valor incorreto: Digite um valor numerico inteiro valido')
+                sg.popup('Valor incorreto. Digite um valor numerico inteiro valido.')
 
     def mensagem_operacao_cancelada(self):
         sg.popup("Operacao cancelada", title="Cancelado")
