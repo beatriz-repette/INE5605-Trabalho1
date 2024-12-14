@@ -36,5 +36,7 @@ class TelaAbstrata(ABC):
     
     @abstractmethod
     def tela_opcoes(self): #Anteriormente funcao chamava-se "mostrar_opcoes"
-        opcao = self.ler_int('Escolha uma opcao: ', [0]) #Ver se isso ainda ta printando
+        opcao = self.ler_int('Escolha uma opcao: ', [0])
         return opcao
+
+#Inserir, tambem, funcoes de selecionar_itens e pegar_dados_itens para "itens" de cada classe
