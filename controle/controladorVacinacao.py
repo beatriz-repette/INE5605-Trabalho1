@@ -29,7 +29,7 @@ class ControladorVacinacao():
         else:
             dados = []
             for vac in self.vacinacoes:
-                animal = self.__controlador_principal.animal_por_chip(vac.animal_chip)
+                animal = self.__controlador_principal.controladorAnimal.animal_por_chip(vac.animal_chip)
                 if animal != 'Animal não se encontra no sistema.':
                     dados.append([
                         vac.data.strftime('%d/%m/%Y'),
@@ -79,7 +79,8 @@ class ControladorVacinacao():
             if self.vacinacoes == []:
                 self.__tela_vacinacao.mostrar_mensagem('Nao existem vacinacoes no sistema.')
             else:
-                vac = self.__tela_vacinacao.selecionar_vacinacao()
+                if vac is None:
+                    vac = self.__tela_vacinacao.selecionar_vacinacao()
                 if vac != 0:
                     vac = self.vacinacao_por_chip_vacina_data(vac['chip'], vac['vacina'], vac['data'])
                     if vac is not None:

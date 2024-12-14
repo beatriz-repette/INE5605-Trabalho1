@@ -18,7 +18,7 @@ class TelaDoador(TelaAbstrata):
         layout = [
             [sg.Text("-------- Doador ----------", font=("Times",25,"bold"))],
             [sg.Text('Escolha sua opção:', font=("Times",15))],
-            [sg.Radio('Incluir Doador', "RD1", key=1)],
+            [sg.Radio('Incluir Doador', "RD1", default = True, key=1)],
             [sg.Radio('Alterar Doador', "RD1", key=2)],
             [sg.Radio('Listar Doadores', "RD1", key=3)],
             [sg.Radio('Excluir Doador', "RD1", key=4)],
@@ -131,17 +131,13 @@ class TelaDoador(TelaAbstrata):
         sg.ChangeLookAndFeel('DarkGreen')
 
         layout = [
-            [sg.Text("-------- Dados Doadores Alterados ----------", font=("Times", 25, "bold"))],
-            [sg.Text("Insira os novos dados do doador:", font=("Times",15))],
-            [sg.Text("Nome:"), sg.InputText(key = 'nome')],
-            [sg.Text("Data de nascimento:"), sg.Input(enable_events=True, key='data'), sg.CalendarButton("Selecionar Data", target="data", format="%d/%m/%Y")],
-            [sg.Text("Endereco:"), sg.InputText(key = 'endereco')],
-            [sg.Text("Tipo de habitacao:")],
-            [sg.Radio("Casa", "habitacao", key = 1),
-             sg.Radio("Apartamento Pequeno", "habitacao", key = 2),
-             sg.Radio("Apartamento Medio", "habitacao", key = 3),
-             sg.Radio("Apartamento Grande", "habitacao", key = 4)],
-            [sg.Checkbox("Possui um animal?", key = "possui_animal", tooltip="Marque se possui um animal")],
+            [sg.Text("-------- Dados Doador ----------", font=("Times", 25, "bold"))],
+            [sg.Text("Insira os dados do doador:", font=("Times", 15))],
+            [sg.Text("CPF:"), sg.InputText(key='cpf')],
+            [sg.Text("Nome:"), sg.InputText(key='nome')],
+            [sg.Text("Data de nascimento:"), sg.Input(enable_events=True, key='data'),
+             sg.CalendarButton("Selecionar Data", target="data", format="%d/%m/%Y")],
+            [sg.Text("Endereco:"), sg.InputText(key='endereco')],
             [sg.Button('Confirmar'), sg.Cancel('Cancelar')]
         ]
 
@@ -158,23 +154,22 @@ class TelaDoador(TelaAbstrata):
             if event == "Confirmar":
                 nome = values['nome']
                 endereco = values['endereco']
-                possui_animal = values["possui_animal"]
-
-                #Determinar tipo de habitacao
-                for val in range(1, 5):
-                    if values[val]:
-                        tipo_habitacao = val
+                cpf = values['cpf']
+                data = values['data']
 
                 try:
-                    data = datetime.strptime(values['data'], "%d/%m/%Y")
-
-                    verificaNome(nome)
-                    verificaEndereco(endereco)
-                    verificaData(data)
-
+                    if cpf != '':
+                        cpf = (cpf).replace(".", "").replace("-", "").strip()
+                        verificaNome(nome)
+                    if data != '':
+                        data = datetime.strptime(data, "%d/%m/%Y")
+                        verificaData(data)
+                    if endereco != '':
+                        verificaEndereco(endereco)
+                    
                     self.__window.Close()
                     return {"nome": nome, "endereco": endereco, "data_nascimento": data,
-                            "tipo_habitacao": tipo_habitacao, "possui_animal": possui_animal}
+                           'cpf': cpf}
 
                 except NomeException:
                     sg.popup("Nome invalido, por favor digite novamente."
@@ -185,8 +180,10 @@ class TelaDoador(TelaAbstrata):
                 except EnderecoException:
                     sg.popup("Endereco invalido, por favor digite novamente."
                              "\nLembre de escrever ao menos sua cidade, rua e numero!")
-                except (UnboundLocalError, ValueError): #Para caso existam campos nao preenchidos
-                    sg.popup("Lembre-se de preencher todos os campos!")
+                except (ValueError):
+                    sg.popup("Erro ao alterar doacao.")
+                except CPFExecption:
+                    sg.popup("O CPF digitado está incorreto, por favor o digite novamente.")
 
     def mostra_doador(self, dados_doador):
         layout = [

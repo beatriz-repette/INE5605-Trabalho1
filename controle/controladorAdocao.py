@@ -19,7 +19,7 @@ class ControladorAdocao():
 
     @property
     def adocoes(self):
-        return self.__adocoes_DAO.get_all()
+        return list(self.__adocoes_DAO.get_all())
 
     def incluir_adocao(self):
         try:
@@ -50,7 +50,7 @@ class ControladorAdocao():
                 self.__tela_adocao.mensagem("Para realizar uma adocao, o adotante nao pode ja ter doado um animal.")
                 raise ErroRegistroException
 
-            animal = self.__controlador_principal.animal_por_chip(dados['animal'])
+            animal = self.__controlador_principal.controladorAnimal.animal_por_chip(dados['animal'])
             if animal == 'Animal não se encontra no sistema.':
                 self.__tela_adocao.mensagem("Esse animal nao foi encontrado no sistema.")
                 raise ErroRegistroException
@@ -69,15 +69,14 @@ class ControladorAdocao():
             if self.animal_foi_adotado(animal.num_chip):
                 self.__tela_adocao.mensagem("O animal ja foi adotado.")
                 raise ErroRegistroException
-
-            self.__adocoes_DAO.add(Adocao(dados['data'], dados['animal'], dados['cpf'], dados['assinou_termo']))
+            
+            self.__adocoes_DAO.add(Adocao(dados['data'], dados['animal'], dados['cpf'], dados['assinou_termo']), len(self.adocoes)+1)
             self.__tela_adocao.mensagem_operacao_concluida()
-        except:
-            pass
+        except ErroRegistroException:
+            self.__tela_adocao.mensagem('Erro ao registrar adocao.')
 
     def alterar_adocao(self):
         try:
-            adocao = self.__tela_adocao.seleciona_adocao(len(self.adocoes))
             id= self.__tela_adocao.seleciona_adocao(len(self.adocoes)) #para o dao
             if adocao == '*':
                 self.__tela_adocao.mensagem_operacao_cancelada()
@@ -94,7 +93,7 @@ class ControladorAdocao():
             animal = None
 
             if dados['animal'] != '*':
-                animal = self.__controlador_principal.animal_por_chip(dados['animal'])
+                animal = self.__controlador_principal.controladorAnimal.animal_por_chip(dados['animal'])
                 if animal == 'Animal não se encontra no sistema.':
                     self.__tela_adocao.mensagem("Esse animal nao foi encontrado no sistema.")
                     raise ErroRegistroException
@@ -139,7 +138,7 @@ class ControladorAdocao():
                 self.__tela_adocao.mensagem("Tamanho do animal incompativel com a sua residencia.")
                 raise ErroRegistroException
 
-            self.__adocoes_DAO.update(id-1, adocao)
+            self.__adocoes_DAO.update(id, adocao)
             self.__tela_adocao.mensagem_operacao_concluida()
         except:
             pass
@@ -150,30 +149,10 @@ class ControladorAdocao():
         else:
             dados_tabela = []
             for n, a in enumerate(self.adocoes, start=1):
-                animal = self.__controlador_principal.animal_por_chip(a.animal)
-                linha = {
-                    'N': n,
-                    'animal': animal.nome if animal != 'Animal não se encontra no sistema.' else '[Animal nao encontrado]',
-                    'data': a.data_adocao.strftime("%d/%m/%Y"),
-                    'chip': a.animal,
-                    'cpf': a.adotante,
-                    'assinou_termo': "SIM" if a.termo_responsabilidade else "NAO",
-                }
-                dados_tabela.append(linha)
-            self.__tela_adocao.mostrar_adocao(dados_tabela)
-
-    def relatorio_adocao(self):
-        self.__doadoresDAO.add(Adocao(10/10/2024, 'nob', '08392457935', 'sim'))
-        if self.adocoes == []:
-            self.__tela_adocao.mensagem("Nao existem adocoes cadastradas no sistema")
-        else:
-            periodo = self.__tela_adocao.seleciona_periodo()
-            dados_tabela = []
-            for n, a in enumerate(self.adocoes, start=1):
-                if periodo["inicio"] <= a.data_adocao <= periodo["fim"]:
-                    animal = self.__controlador_principal.animal_por_chip(a.animal)
+                try:
+                    animal = self.__controlador_principal.controladorAnimal.animal_por_chip(a.animal)
                     linha = {
-                        'N': n,
+                        'n': n,
                         'animal': animal.nome if animal != 'Animal não se encontra no sistema.' else '[Animal nao encontrado]',
                         'data': a.data_adocao.strftime("%d/%m/%Y"),
                         'chip': a.animal,
@@ -181,7 +160,31 @@ class ControladorAdocao():
                         'assinou_termo': "SIM" if a.termo_responsabilidade else "NAO",
                     }
                     dados_tabela.append(linha)
-            if dados_tabela:  # Verifica se há adoções no período selecionado
+                except:
+                    self.__tela_adocao.mensagem(n)
+            self.__tela_adocao.mostrar_adocao(dados_tabela)
+
+    def relatorio_adocao(self):
+        if self.adocoes == []:
+            self.__tela_adocao.mensagem("Nao existem adocoes cadastradas no sistema")
+        else:
+            periodo = self.__tela_adocao.seleciona_periodo()
+            dados_tabela = []
+            n = 1
+            for a in self.adocoes:
+                if periodo["inicio"] <= a.data_adocao <= periodo["fim"]:
+                    animal = self.__controlador_principal.animal_por_chip(a.animal)
+                    linha = {
+                        'n': n,
+                        'animal': animal.nome if animal != 'Animal não se encontra no sistema.' else '[Animal nao encontrado]',
+                        'data': a.data_adocao.strftime("%d/%m/%Y"),
+                        'chip': a.animal,
+                        'cpf': a.adotante,
+                        'assinou_termo': a.termo_responsabilidade
+                    }
+                    dados_tabela.append(linha)
+                    n += 1
+            if dados_tabela != []:  # Verifica se há adoções no período selecionado
                 self.__tela_adocao.mostrar_adocao(dados_tabela)
             else:
                 self.__tela_adocao.mensagem("Nao existem adocoes no periodo selecionado")
@@ -189,8 +192,8 @@ class ControladorAdocao():
     def excluir_adocao(self):
         try:
             adocao = self.__tela_adocao.seleciona_adocao(len(self.adocoes))
-            if adocao != '*' and adocao != '0':
-                self.adocoes.remove(self.adocoes[adocao])
+            if adocao > 0:
+                self.__adocoes_DAO.remove(adocao)
                 self.__tela_adocao.mensagem_operacao_concluida()
             else:
                 self.__tela_adocao.mensagem_operacao_cancelada()

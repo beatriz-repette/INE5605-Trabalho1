@@ -52,36 +52,34 @@ class ControladorAdotante:
         if adotante is not None:
             try:
                 self.__tela_adotante.mensagem("A seguir, insira os novos dados do adotante.")
-                novos_dados_adotante = self.__tela_adotante.pega_dados_adotante()
+                novos_dados_adotante = self.__tela_adotante.pega_dados_alterados_adotante()
 
                 if novos_dados_adotante == 0:
                     self.__tela_adotante.mensagem_operacao_cancelada()
-                    raise RetornarException
+                else:
+                    if novos_dados_adotante["cpf"] != '':
+                        # Verifica se ja existe um cadastro com o novo cpf informado
+                        if self.adotante_por_cpf(novos_dados_adotante['cpf']) is not None:
+                            self.__tela_adotante.mensagem("Erro ao alterar CPF, CPF inserido ja cadastrado.")
+                        else:
+                            adotante.cpf = novos_dados_adotante["cpf"]
 
-                if novos_dados_adotante["cpf"] != '*':
-                    # Verifica se ja existe um cadastro com o novo cpf informado
-                    if self.adotante_por_cpf(novos_dados_adotante['cpf']) is not None:
-                        self.__tela_adotante.mensagem("Erro ao cadastrar adotante, CPF inserido ja cadastrado.")
-                        raise ErroCadastroException
-                    adotante.cpf = novos_dados_adotante["cpf"]
+                    if novos_dados_adotante["nome"] != '':
+                        adotante.nome = novos_dados_adotante["nome"]
 
-                if novos_dados_adotante["nome"] != '*':
-                    adotante.nome = novos_dados_adotante["nome"]
+                    if novos_dados_adotante["data_nascimento"] != '':
+                        adotante.data_nascimento = novos_dados_adotante["data_nascimento"]
 
-                if novos_dados_adotante["data_nascimento"] != '*':
-                    adotante.data_nascimento = novos_dados_adotante["data_nascimento"]
+                    if novos_dados_adotante["endereco"] != '':
+                        adotante.endereco = novos_dados_adotante["endereco"]
 
-                if novos_dados_adotante["endereco"] != '*':
-                    adotante.endereco = novos_dados_adotante["endereco"]
+                    if novos_dados_adotante["tipo_habitacao"] != 0:
+                        adotante.tipo_habitacao = Habitacao(novos_dados_adotante["tipo_habitacao"])
 
-                if novos_dados_adotante["tipo_habitacao"] != '*':
-                    adotante.tipo_habitacao = novos_dados_adotante["tipo_habitacao"]
-
-                if novos_dados_adotante["possui_animal"] != '*':
                     adotante.possui_animal = novos_dados_adotante['possui_animal']
 
-                self.__adotantes_DAO.update(adotante.cpf, adotante)
-                self.__tela_adotante.mensagem_operacao_concluida()
+                    self.__adotantes_DAO.update(cpf_adotante, adotante)
+                    self.__tela_adotante.mensagem_operacao_concluida()
 
             except ErroCadastroException or RetornarException:
                 pass

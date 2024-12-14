@@ -74,13 +74,12 @@ class TelaAdocao(TelaAbstrata):
                 animal = values['animal']
                 assinou_termo = values["assinou_termo"]
 
-
                 try:
                     data = datetime.strptime(values['data'], "%d/%m/%Y")
+                    animal = int(animal)
 
                     verificaData(data)
                     verificaCPF(cpf)
-                    verificaChip(animal)
                     #Add verifica data depois
 
                     self.__window.Close()
@@ -93,6 +92,8 @@ class TelaAdocao(TelaAbstrata):
                              "Lembre que esse valor deve ser um inteiro positivo.")
                 except (UnboundLocalError, ValueError): #Para caso existam campos nao preenchidos
                     sg.popup("Lembre-se de preencher todos os campos!")
+                except ValueError:
+                    sg.popup('Insira uma data valida.')
 
     def pega_dados_alterados_adocao(self):
         sg.ChangeLookAndFeel('DarkGreen')
@@ -162,11 +163,10 @@ class TelaAdocao(TelaAbstrata):
                 return 0
 
             if event == "Confirmar":
-                cpf = (values['cpf']).replace(".", "").replace("-", "").strip()
 
                 try:
-                    adocao = int(adocao)
-                    if adocao < 0 or adocao >= len:
+                    adocao = int(values['adocao'])
+                    if adocao <= 0 or adocao > len:
                         raise ValueError
                     self.__window.Close()
                     return adocao
@@ -198,8 +198,8 @@ class TelaAdocao(TelaAbstrata):
 
             if event == "Confirmar":
                 try:
-                    data_inicio = datetime.strptime(values['data'], "%d/%m/%Y")
-                    data_fim = datetime.strptime(values['data'], "%d/%m/%Y")
+                    data_inicio = datetime.strptime(values['data_inicio'], "%d/%m/%Y")
+                    data_fim = datetime.strptime(values['data_fim'], "%d/%m/%Y")
 
                     verificaData(data_inicio)
                     verificaData(data_fim)
@@ -216,14 +216,14 @@ class TelaAdocao(TelaAbstrata):
     def mostrar_adocao(self, dados):
 
         dados_tabela = []
-        for i, dados in enumerate(dados, start=1):
+        for d in dados:
             linha = [
-                i,
-                dados["animal"],
-                dados["data"].strftime("%d/%m/%Y"),
-                dados["chip"],
-                dados["cpf"],
-                "SIM" if dados["assinou_termo"] else "NÃO"
+                d['n'],
+                d["animal"],
+                d["data"],
+                d["chip"],
+                d["cpf"],
+                "SIM" if d["assinou_termo"] else "NÃO"
             ]
             dados_tabela.append(linha)
 
@@ -231,7 +231,7 @@ class TelaAdocao(TelaAbstrata):
 
         layout = [
             [sg.Text("Adoções Registradas")],
-            [sg.Table(values=dados_tabela, headings=cabecalho, auto_size_columns=False, justification='center',
+            [sg.Table(values=dados_tabela, headings=cabecalho, auto_size_columns=True, justification='center',
                       num_rows=10, key="-TABELA-")],
             [sg.Button("Fechar")]
         ]

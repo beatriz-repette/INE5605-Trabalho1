@@ -92,15 +92,6 @@ class ControladorPrincipal:
         self.__tela_principal.mensagem("Sistema Finalizado.")
         exit(0)
 
-    def animal_por_chip(self, id):
-        cachorro = self.__controlador_cachorro.cachorro_por_chip(id)
-        if cachorro != 'Cachorro nao se encontra no sistema.':
-            return cachorro
-        gato = self.__controlador_gato.gato_por_chip(id)
-        if gato != 'Gato nao se encontra no sistema.':
-            return gato
-        return 'Animal não se encontra no sistema.'
-
     def abre_tela(self):
         # Ir adicionando mais opcoes a media que os controladores/telas forem sendo adicionados
         lista_opcoes = {0: self.encerrar_sistema,

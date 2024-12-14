@@ -49,26 +49,25 @@ class ControladorDoador:
 
                 if novos_dados_doador == 0:
                     self.__tela_doador.mensagem_operacao_cancelada()
-                    raise RetornarException
+                else:
+                    if novos_dados_doador["cpf"] != '':
+                        # Verifica se ja existe um cadastro com o novo cpf informado
+                        if self.doador_por_cpf(novos_dados_doador['cpf']) is not None:
+                            self.__tela_doador.mensagem("Erro ao cadastrar doador, CPF inserido ja cadastrado")
+                            raise ErroCadastroException
+                        doador.cpf = novos_dados_doador["cpf"]
 
-                if novos_dados_doador["cpf"] != '*':
-                    # Verifica se ja existe um cadastro com o novo cpf informado
-                    if self.doador_por_cpf(novos_dados_doador['cpf']) is not None:
-                        self.__tela_doador.mensagem("Erro ao cadastrar doador, CPF inserido ja cadastrado")
-                        raise ErroCadastroException
-                    doador.cpf = novos_dados_doador["cpf"]
+                    if novos_dados_doador["nome"] != '':
+                        doador.nome = novos_dados_doador["nome"]
 
-                if novos_dados_doador["nome"] != '*':
-                    doador.nome = novos_dados_doador["nome"]
+                    if novos_dados_doador["data_nascimento"] != '':
+                        doador.data_nascimento = novos_dados_doador["data_nascimento"]
 
-                if novos_dados_doador["data_nascimento"] != '*':
-                    doador.data_nascimento = novos_dados_doador["data_nascimento"]
+                    if novos_dados_doador["endereco"] != '':
+                        doador.endereco = novos_dados_doador["endereco"]
 
-                if novos_dados_doador["endereco"] != '*':
-                    doador.endereco = novos_dados_doador["endereco"]
-
-                self.__doadores_DAO.update(doador.cpf, doador)
-                self.__tela_doador.mensagem_operacao_concluida()
+                    self.__doadores_DAO.update(cpf_doador, doador)
+                    self.__tela_doador.mensagem_operacao_concluida()
 
             except ErroCadastroException or RetornarException:
                 pass
