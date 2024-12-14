@@ -67,7 +67,7 @@ class ControladorDoacao():
         else:
             n = 0
             for d in self.__doacoes:
-                animal = self.__controladorPrincipal.animal_por_chip(d.animal)
+                animal = self.__controladorPrincipal.controladorAnimal.animal_por_chip(d.animal)
                 if animal != 'Animal não se encontra no sistema.':
                     self.__telaDoacao.mostrar_doacao({
                         'data': d.data_doacao,
@@ -118,8 +118,8 @@ class ControladorDoacao():
                 doacao.doador = novos_dados_doacao["cpf"]
 
             if novos_dados_doacao["chip"] != '*':
-                animal = self.__controladorPrincipal.animal_por_chip(doacao.animal)
-                if self.__controladorPrincipal.animal_por_chip(novos_dados_doacao['chip']) == 'Animal não se encontra no sistema.':
+                animal = self.__controladorPrincipal.controladorAnimal.animal_por_chip(doacao.animal)
+                if self.__controladorPrincipal.controladorAnimal.animal_por_chip(novos_dados_doacao['chip']) == 'Animal não se encontra no sistema.':
                     animal.num_chip = novos_dados_doacao["chip"]
                 doacao.animal = novos_dados_doacao["chip"]
 
@@ -141,7 +141,7 @@ class ControladorDoacao():
             periodo = self.__telaDoacao.seleciona_periodo()
             n = 0
             for d in self.__doacoes:
-                animal = self.__controladorPrincipal.animal_por_chip(d.animal)
+                animal = self.__controladorPrincipal.controladorAnimal.animal_por_chip(d.animal)
                 if (animal != 'Animal não se encontra no sistema.'
                     and d.data_doacao >= periodo['inicio']
                     and d.data_doacao <= periodo['fim']):
