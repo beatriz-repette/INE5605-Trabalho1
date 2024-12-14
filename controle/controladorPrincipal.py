@@ -12,14 +12,14 @@ class ControladorPrincipal:
         from controle.controladorAdocao import ControladorAdocao
         self.__controlador_adocao = ControladorAdocao(self)
 
-        from controle.controladorAnimal import ControladorAnimal
-        self.__controlador_animal = ControladorAnimal(self)
-
         from controle.controladorCachorro import ControladorCachorro
         self.__controlador_cachorro = ControladorCachorro(self)
 
         from controle.controladorGato import ControladorGato
         self.__controlador_gato = ControladorGato(self)
+
+        from controle.controladorAnimal import ControladorAnimal
+        self.__controlador_animal = ControladorAnimal(self)
 
         from controle.controladorVacinacao import ControladorVacinacao
         self.__controlador_vacinacao = ControladorVacinacao(self)
