@@ -143,7 +143,7 @@ class TelaAdocao(TelaAbstrata):
                              "Por favor, insira uma data valida")
                 except (UnboundLocalError, ValueError):  # Para caso existam campos nao preenchidos
                     sg.popup("Lembre-se de preencher todos os campos!")
-    
+
     def seleciona_adocao(self, len): #Ver se isso vai funcionar
         sg.ChangeLookAndFeel('DarkGreen')
 
@@ -172,7 +172,7 @@ class TelaAdocao(TelaAbstrata):
                     return adocao
                 except ValueError:
                     sg.popup("Por favor, insira uma posicao valida.")
-    
+
     def seleciona_periodo(self):
         sg.ChangeLookAndFeel('DarkGreen')
 
@@ -213,7 +213,7 @@ class TelaAdocao(TelaAbstrata):
                 except (UnboundLocalError, ValueError):  # Para caso existam campos nao preenchidos
                     sg.popup("Lembre-se de preencher todos os campos!")
 
-    def mostrar_adocao(self, dados, n):
+    def mostrar_adocao(self, dados):
 
         dados_tabela = []
         for i, dados in enumerate(dados, start=1):
