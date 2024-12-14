@@ -45,7 +45,7 @@ class ControladorAdocao():
                 self.__telaAdocao.mensagem("Para realizar uma adocao, o adotante nao pode ja ter doado um animal.")
                 raise ErroRegistroException
 
-            animal = self.__controladorPrincipal.animal_por_chip(dados['animal'])
+            animal = self.__controladorPrincipal.controladorAnimal.animal_por_chip(dados['animal'])
             if animal == 'Animal não se encontra no sistema.':
                 self.__telaAdocao.mensagem("Esse animal nao foi encontrado no sistema.")
                 raise ErroRegistroException
@@ -88,7 +88,7 @@ class ControladorAdocao():
             animal = None
 
             if dados['animal'] != '*':
-                animal = self.__controladorPrincipal.animal_por_chip(dados['animal'])
+                animal = self.__controladorPrincipal.controladorAnimal.animal_por_chip(dados['animal'])
                 if animal == 'Animal não se encontra no sistema.':
                     self.__telaAdocao.mensagem("Esse animal nao foi encontrado no sistema.")
                     raise ErroRegistroException
@@ -99,7 +99,7 @@ class ControladorAdocao():
                 
                 adocao.animal = dados['animal']
             else:
-                animal = self.__controladorPrincipal.animal_por_chip(adocao.animal)
+                animal = self.__controladorPrincipal.controladorAnimal.animal_por_chip(adocao.animal)
             
             if dados['cpf'] != '*':
                 adotante = self.__controladorPrincipal.controladorAdotante.adotante_por_cpf(dados['cpf'])
@@ -143,7 +143,7 @@ class ControladorAdocao():
         else:
             dados_tabela = []
             for n, a in enumerate(self.__adocoes, start=1):
-                animal = self.__controladorPrincipal.animal_por_chip(a.animal)
+                animal = self.__controladorPrincipal.controladorAnimal.animal_por_chip(a.animal)
                 linha = {
                     'N': n,
                     'animal': animal.nome if animal != 'Animal não se encontra no sistema.' else '[Animal nao encontrado]',
@@ -163,7 +163,7 @@ class ControladorAdocao():
             dados_tabela = []
             for n, a in enumerate(self.__adocoes, start=1):
                 if periodo["inicio"] <= a.data_adocao <= periodo["fim"]:
-                    animal = self.__controladorPrincipal.animal_por_chip(a.animal)
+                    animal = self.__controladorPrincipal.controladorAnimal.animal_por_chip(a.animal)
                     linha = {
                         'N': n,
                         'animal': animal.nome if animal != 'Animal não se encontra no sistema.' else '[Animal nao encontrado]',
