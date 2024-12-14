@@ -12,7 +12,7 @@ class ControladorGato():
 
     @property
     def gatos(self):
-        return self.__gato_DAO.get_all()
+        return list(self.__gato_DAO.get_all())
 
     def gato_por_chip(self, id):
         for gato in self.gatos:
@@ -59,14 +59,19 @@ class ControladorGato():
         else:
             try:
                 chip = self.__telaGato.seleciona_gato()
-                gato = self.gato_por_chip(chip)
-                if gato != 'Gato nao se encontra no sistema.':
-                    dados = self.__telaGato.pegar_vacina(chip)
-                    for v in dados:
-                        gato.add_vacina(self.__controladorPrincipal.controladorVacinacao.incluir_vacinacao(v['data'], v['nome'], v['animal']))
-                    self.__gato_DAO.update(gato, gato.num_chip)
+                if chip == '*':
+                    self.__telaGato.mensagem_operacao_cancelada()
                 else:
-                    raise ErroVacinaException
+                    gato = self.gato_por_chip(chip)
+                    if gato != 'Gato nao se encontra no sistema.':
+                        dados = self.__telaGato.pegar_vacina(chip)
+                        if dados == 0:
+                            self.__telaGato.mensagem_operacao_cancelada()
+                        else:
+                            gato.add_vacina(self.__controladorPrincipal.controladorVacinacao.incluir_vacinacao(dados['data'], dados['nome'], dados['animal']))
+                            self.__gato_DAO.update(gato, gato.num_chip)
+                    else:
+                        raise ErroVacinaException
             except:
                 self.__telaGato.mensagem_erro_vacina()
     
@@ -78,44 +83,46 @@ class ControladorGato():
             gato = self.gato_por_chip(chip)
             if gato != 'Gato nao se encontra no sistema.':
                 dados = self.__telaGato.pegar_dados_gato()
+                if dados != 0:
                 
-                # Se dados['dado'] for *, não substitui o valor antigo
-                if dados['chip'] != '*':
-                    # Se o chip não existir ou for o próprio
-                    if (self.__controladorPrincipal.animal_por_chip(dados['chip']) == 'Animal não se encontra no sistema.'
-                        or dados['chip'] == gato.num_chip):
-                        doacao = self.__controladorPrincipal.controladorDoacao
-                        for doa in doacao.doacoes:
-                            if doa.animal == gato.num_chip:
-                                # ISSO VAI MUDAR QUANDO MUDAR DOACAO
-                                doa.animal = dados['chip']
-                        gato.num_chip = dados['chip']
+                    # Se dados['dado'] for *, não substitui o valor antigo
+                    if dados['chip'] != '*':
+                        # Se o chip não existir ou for o próprio
+                        if (self.__controladorPrincipal.animal_por_chip(dados['chip']) == 'Animal não se encontra no sistema.'
+                            or dados['chip'] == gato.num_chip):
+                            doacao = self.__controladorPrincipal.controladorDoacao
+                            for doa in doacao.doacoes:
+                                if doa.animal == gato.num_chip:
+                                    # ISSO VAI MUDAR QUANDO MUDAR DOACAO
+                                    doa.animal = dados['chip']
+                            gato.num_chip = dados['chip']
 
-                    else:
-                        self.__telaGato.mostrar_mensagem('Ja existe um animal com esse chip.')
+                        else:
+                            self.__telaGato.mostrar_mensagem('Ja existe um animal com esse chip.')
 
-                if dados['nome'] != '*':
-                    gato.nome = dados['nome']
+                    if dados['nome'] != '*':
+                        gato.nome = dados['nome']
 
-                if dados['raca'] != '*':
-                    gato.raca = dados['raca']
+                    if dados['raca'] != '*':
+                        gato.raca = dados['raca']
 
-                if dados['vacinas'] != '*':
-                    for vac in self.__controladorPrincipal.controladorVacinacao.vacinacoes:
-                        if vac.animal_chip == chip:
-                            self.__controladorPrincipal.controladorVacinacao.excluir_vacinacao(vac)
-                    for vac in gato.vacinas:
-                        if vac != '':
-                            gato.excluir_vacina(vac)
+                    if dados['vacinas'] != '*':
+                        for vac in self.__controladorPrincipal.controladorVacinacao.vacinacoes:
+                            if vac.animal_chip == chip:
+                                self.__controladorPrincipal.controladorVacinacao.excluir_vacinacao(vac)
+                        for vac in gato.vacinas:
+                            if vac != '':
+                                gato.excluir_vacina(vac)
 
-                    for v in dados['vacinas']:
-                        if v['data'] != '':
-                            vacina = self.__controladorPrincipal.controladorVacinacao.incluir_vacinacao(v['data'], v['nome'], gato.num_chip)
-                            gato.add_vacina(vacina)
+                        for v in dados['vacinas']:
+                            if v['data'] != '':
+                                vacina = self.__controladorPrincipal.controladorVacinacao.incluir_vacinacao(v['data'], v['nome'], gato.num_chip)
+                                gato.add_vacina(vacina)
 
-                self.__gato_DAO.update(gato, chip)
-                self.__telaGato.mensagem_operacao_concluida()
-
+                    self.__gato_DAO.update(gato, chip)
+                    self.__telaGato.mensagem_operacao_concluida()
+                else:
+                    self.__telaGato.mensagem_operacao_cancelada()
             else:
                 self.__telaGato.mostrar_mensagem(gato)
 
